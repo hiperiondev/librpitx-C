@@ -1,31 +1,29 @@
 /*
- * RPItx.cpp
+ * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
+ * * Project Site:  *
  *
- *  Created on: 4 oct. 2021
- *      Author: egonzalez
+ * This is based on other projects:
+ *    librpitx (https://github.com/F5OEO/librpitx)
+ *
+ *    please contact their authors for more information.
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ *
  */
 
-/*<rpitx is a software which use the GPIO of Raspberry Pi to transmit HF>
- This version is to allow back compatibility with rpitx v1
- Copyright (C) 2015-2018  Evariste COURJAUD F5OEO (evaristec@gmail.com)
- Transmitting on HF band is surely not permitted without license (Hamradio for example).
- Usage of this software is not the responsability of the author.
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 2 of the License, or
- (at your option) any later version.
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
- Thanks to first test of RF with Pifm by Oliver Mattos and Oskar Weigl
- INSPIRED BY THE IMPLEMENTATION OF PIFMDMA by Richard Hirst <richardghirst@gmail.com>  December 2012
- Helped by a code fragment by PE1NNZ (http://pe1nnz.nl.eu.org/2013/05/direct-ssb-generation-on-pll.html)
- */
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -207,7 +205,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Warning : rpitx V2 is only to try to be compatible with version 1\n");
     // For IQ
 #define IQBURST 4000
-    iqdma_t *iqsender;
+    iqdmasync_t *iqsender;
     float _Complex CIQBuffer_[IQBURST];
     int Decimation = 1;
     int FifoSize = IQBURST * 4;

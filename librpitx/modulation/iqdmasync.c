@@ -1,8 +1,28 @@
 /*
- * iqdmasync.c
+ * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
+ * * Project Site:  *
  *
- *  Created on: 6 oct. 2021
- *      Author: egonzalez
+ * This is based on other projects:
+ *    librpitx (https://github.com/F5OEO/librpitx)
+ *        Copyright (C) 2018  Evariste COURJAUD F5OEO
+ *
+ *    please contact their authors for more information.
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3, or (at your option)
+ * any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this software; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 51 Franklin Street,
+ * Boston, MA 02110-1301, USA.
+ *
  */
 
 #include <stdio.h>
@@ -19,10 +39,10 @@
 #include "dsp.h"
 #include "iqdmasync.h"
 
-void iqdmasync_Ciqdmasync(iqdma_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode) {
+void iqdmasync_Ciqdmasync(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode) {
     librpitx_dbg_printf(2, "> func: (iqdmasync_iqdmasync) %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    *iqdmas = (iqdma_t*) malloc(sizeof(iqdma));
+    *iqdmas = (iqdmasync_t*) malloc(sizeof(iqdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 4, 3);
     clkgpio_Cclkgpio(&((*iqdmas)->clkgpio));
     pwmgpio_Cpwmgpio(&((*iqdmas)->pwmgpio));
@@ -61,7 +81,7 @@ void iqdmasync_Ciqdmasync(iqdma_t **iqdmas, uint64_t TuneFrequency, uint32_t SR,
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_Diqdmasync(iqdma_t **iqdmas) {
+void iqdmasync_Diqdmasync(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0] = (*iqdmas)->Originfsel;
@@ -74,13 +94,13 @@ void iqdmasync_Diqdmasync(iqdma_t **iqdmas) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetPhase(iqdma_t **iqdmas, bool inversed) {
+void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     clkgpio_SetPhase(&((*iqdmas)->clkgpio), inversed);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetDmaAlgo(iqdma_t **iqdmas) {
+void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
@@ -110,7 +130,7 @@ void iqdmasync_SetDmaAlgo(iqdma_t **iqdmas) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetIQSample(iqdma_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
+void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     Index = Index % buffersize;
     //mydsp.pushsample(sample);
@@ -142,7 +162,7 @@ void iqdmasync_SetIQSample(iqdma_t **iqdmas, uint32_t Index, float _Complex samp
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetFreqAmplitudeSample(iqdma_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
+void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     Index = Index % buffersize;
 
@@ -175,7 +195,7 @@ void iqdmasync_SetFreqAmplitudeSample(iqdma_t **iqdmas, uint32_t Index, float _C
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetIQSamples(iqdma_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic) {
+void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     size_t NbWritten = 0;
     //int OSGranularity=100;
@@ -229,7 +249,7 @@ void iqdmasync_SetIQSamples(iqdma_t **iqdmas, float _Complex *sample, size_t Siz
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_Setppm(iqdma_t **iqdmas, double ppm) {
+void iqdmasync_Setppm(iqdmasync_t **iqdmas, double ppm) {
     clkgpio_Setppm(&((*iqdmas)->clkgpio), ppm);
 }
 
