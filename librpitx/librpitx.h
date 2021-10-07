@@ -24,20 +24,14 @@
  * Boston, MA 02110-1301, USA.
  *
  */
-
-// core
-//#include "dma.h"
-//#include "dsp.h"
-//#include "gpio.h"
 #include "util.h"
 
-// modulation
 #include "iqdmasync.h"
 #include "amdmasync.h"
-//#include "atv.hpp"
-//#include "fmdmasync.hpp"
-//#include "fskburst.hpp"
+#include "atv.h"
+#include "fmdmasync.h"
+#include "fskburst.h"
 #include "ngfmdmasync.h"
-//#include "ookburst.hpp"
-//#include "phasedmasync.hpp"
-//#include "serialdmasync.hpp"
+#include "ookburst.h"
+#include "phasedmasync.h"
+#include "serialdmasync.h"
