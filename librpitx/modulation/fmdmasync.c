@@ -40,6 +40,7 @@ void fmdmasync_Cfmdmasync(int Channel, uint32_t FifoSize) {
 }
 
 void fmdmasync_Dfmdmasync(void) {
+    dma_Ddma();
 }
 
 void fmdmasync_SetDmaAlgo(void) {

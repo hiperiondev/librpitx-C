@@ -119,7 +119,7 @@ uint32_t clkgpio_GetMasterFrac(clkgpio_t **clkgpio, double Frequency);
     void clkgpio_SetPhase(clkgpio_t **clkgpio, bool inversed);
     void clkgpio_SetAdvancedPllMode(clkgpio_t **clkgpio, bool Advanced);
     void clkgpio_SetPLLMasterLoop(clkgpio_t **clkgpio, int Ki, int Kp, int Ka);
-//  void clkgpio_print_clock_tree(clkgpio_t **clkgpio);
+    void clkgpio_print_clock_tree(clkgpio_t **clkgpio);
     void clkgpio_enableclk(clkgpio_t **clkgpio, int gpio);
     void clkgpio_disableclk(clkgpio_t **clkgpio, int gpio);
     void clkgpio_Setppm(clkgpio_t **clkgpio, double ppm);

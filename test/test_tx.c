@@ -36,9 +36,6 @@
 #include <ctype.h>
 
 #include "librpitx.h"
-
-//#include "iqdmasync.h"
-
 #define PROGRAM_VERSION "2.0"
 
 bool running = true;
@@ -47,7 +44,6 @@ void print_usage(void) {
     fprintf(stderr, "Warning : rpitx V2 is only to try to be compatible with version 1\n");
 
     fprintf(stderr,
-
             "\nrpitx -%s\n\
 Usage:\nrpitx [-i File Input][-m ModeInput] [-f frequency output] [-s Samplerate] [-l] [-p ppm] [-h] \n\
 -m            {IQ(FileInput is a Stereo Wav contains I on left Channel, Q on right channel)}\n\
@@ -64,7 +60,7 @@ Usage:\nrpitx [-i File Input][-m ModeInput] [-f frequency output] [-s Samplerate
 
             PROGRAM_VERSION);
 
-} /* end function print_usage */
+}
 
 static void terminate(int num) {
     running = false;
@@ -136,7 +132,7 @@ int main(int argc, char *argv[]) {
             case 's': // SampleRate (Only needeed in IQ mode)
                 SampleRate = atoi(optarg);
                 break;
-            case 'p':  //   ppmcorrection
+            case 'p':  // ppmcorrection
                 ppmpll = atof(optarg);
 
                 break;
@@ -179,10 +175,9 @@ int main(int argc, char *argv[]) {
                 print_usage();
                 exit(1);
                 break;
-        }/* end switch a */
-    }/* end while getopt() */
+        }
+    }
 
-    //Open File Input for modes which need it
     if ((Mode == MODE_RPITX_IQ) || (Mode == MODE_RPITX_IQ_FLOAT) || (Mode == MODE_RPITX_RF) || (Mode == MODE_RPITX_RFA)) {
         if (FileName && strcmp(FileName, "-") == 0) {
             FileInHandle = stdin;
@@ -203,13 +198,13 @@ int main(int argc, char *argv[]) {
     }
 
     fprintf(stderr, "Warning : rpitx V2 is only to try to be compatible with version 1\n");
-    // For IQ
-#define IQBURST 4000
+
+#define IQBURST 4000 // For IQ
+
     iqdmasync_t *iqsender;
     float _Complex CIQBuffer_[IQBURST];
     int Decimation = 1;
     int FifoSize = IQBURST * 4;
-    //Init
 
     switch (Mode) {
         case MODE_RPITX_IQ:
@@ -220,8 +215,6 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    //resetFile();
-    //return pitx_run(Mode, SampleRate, SetFrequency, ppmpll, NoUsePwmFrequency, readFile, resetFile, NULL,SetDma);
     while (running) {
         switch (Mode) {
             case MODE_RPITX_IQ:
@@ -235,11 +228,10 @@ int main(int argc, char *argv[]) {
                         static short IQBuffer[IQBURST * 2];
 
                         int nbread = fread(IQBuffer, sizeof(short), IQBURST * 2, FileInHandle);
-                        //if(nbread==0) continue;
                         if (nbread > 0) {
                             for (int i = 0; i < nbread / 2; i++) {
                                 if (i % Decimation == 0) {
-                                    CIQBuffer_[CplxSampleNumber++] = (IQBuffer[i * 2] / 32768.0) + (IQBuffer[i * 2 + 1] / 32768.0)*I;
+                                    CIQBuffer_[CplxSampleNumber++] = (IQBuffer[i * 2] / 32768.0) + (IQBuffer[i * 2 + 1] / 32768.0) * I;
                                 }
                             }
                         } else {
@@ -255,14 +247,12 @@ int main(int argc, char *argv[]) {
                     case MODE_RPITX_IQ_FLOAT: {
                         static float IQBuffer[IQBURST * 2];
                         int nbread = fread(IQBuffer, sizeof(float), IQBURST * 2, FileInHandle);
-                        //if(nbread==0) continue;
                         if (nbread > 0) {
                             for (int i = 0; i < nbread / 2; i++) {
                                 if (i % Decimation == 0) {
-                                    CIQBuffer_[CplxSampleNumber++] = (IQBuffer[i * 2]) +(IQBuffer[i * 2 + 1])*I;
+                                    CIQBuffer_[CplxSampleNumber++] = (IQBuffer[i * 2]) + (IQBuffer[i * 2 + 1]) * I;
 
                                 }
-                                //printf("%f %f\n",(IQBuffer[i*2]-127.5)/128.0,(IQBuffer[i*2+1]-127.5)/128.0);
                             }
                         } else {
                             printf("End of file\n");
@@ -281,11 +271,11 @@ int main(int argc, char *argv[]) {
                 break;
         }
     }
-    // This is the end
+
     switch (Mode) {
         case MODE_RPITX_IQ:
         case MODE_RPITX_IQ_FLOAT:
-            iqdmasync_Diqdmasync (&iqsender);
+            iqdmasync_Diqdmasync(&iqsender);
             break;
     }
 }

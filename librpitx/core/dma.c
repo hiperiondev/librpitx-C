@@ -333,6 +333,10 @@ void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysampl
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
+void bufferdma_Dbufferdma(void) {
+    dma_Ddma();
+}
+
 void bufferdma_SetDmaAlgo(void) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);

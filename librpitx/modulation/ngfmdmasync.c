@@ -46,17 +46,17 @@ void ngfmdmasync_Cngfmdmasync(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint
     (*ngfm)->SampleRate = SR;
     (*ngfm)->tunefreq = TuneFrequency;
     clkgpio_SetAdvancedPllMode(&((*ngfm)->clkgpio), true);
-    clkgpio_SetCenterFrequency(&((*ngfm)->clkgpio),TuneFrequency, (*ngfm)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
-    clkgpio_SetFrequency(&((*ngfm)->clkgpio),0);
-    clkgpio_enableclk(&((*ngfm)->clkgpio),4); // GPIO 4 CLK by default
+    clkgpio_SetCenterFrequency(&((*ngfm)->clkgpio), TuneFrequency, (*ngfm)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
+    clkgpio_SetFrequency(&((*ngfm)->clkgpio), 0);
+    clkgpio_enableclk(&((*ngfm)->clkgpio), 4); // GPIO 4 CLK by default
     (*ngfm)->syncwithpwm = UsePwm;
 
     if ((*ngfm)->syncwithpwm) {
-        pwmgpio_SetPllNumber(&((*ngfm)->pwmgpio),clk_plld, 1);
-        pwmgpio_SetFrequency(&((*ngfm)->pwmgpio),(*ngfm)->SampleRate);
+        pwmgpio_SetPllNumber(&((*ngfm)->pwmgpio), clk_plld, 1);
+        pwmgpio_SetFrequency(&((*ngfm)->pwmgpio), (*ngfm)->SampleRate);
     } else {
-        pcmgpio_SetPllNumber(&((*ngfm)->pcmgpio),clk_plld, 1);
-        pcmgpio_SetFrequency(&((*ngfm)->pcmgpio),(*ngfm)->SampleRate);
+        pcmgpio_SetPllNumber(&((*ngfm)->pcmgpio), clk_plld, 1);
+        pcmgpio_SetFrequency(&((*ngfm)->pcmgpio), (*ngfm)->SampleRate);
     }
 
     bufferdma_SetDmaAlgo();
@@ -67,11 +67,16 @@ void ngfmdmasync_Cngfmdmasync(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint
 }
 
 void ngfmdmasync_Dngfmdmasync(ngfmdmasync_t **ngfm) {
-    clkgpio_disableclk(&((*ngfm)->clkgpio),4);
+    clkgpio_disableclk(&((*ngfm)->clkgpio), 4);
+
+    clkgpio_Dclkgpio(&((*ngfm)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*ngfm)->pwmgpio));
+    pcmgpio_Dpcmgpio(&((*ngfm)->pcmgpio));
+    free(*ngfm);
 }
 
 void ngfmdmasync_SetPhase(ngfmdmasync_t **ngfm, bool inversed) {
-    clkgpio_SetPhase(&((*ngfm)->clkgpio),inversed);
+    clkgpio_SetPhase(&((*ngfm)->clkgpio), inversed);
 }
 
 void ngfmdmasync_SetDmaAlgo(ngfmdmasync_t **ngfm) {
@@ -94,7 +99,7 @@ void ngfmdmasync_SetDmaAlgo(ngfmdmasync_t **ngfm) {
 
 void ngfmdmasync_SetFrequencySample(ngfmdmasync_t **ngfm, uint32_t Index, float Frequency) {
     Index = Index % buffersize;
-    sampletab[Index] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*ngfm)->clkgpio),Frequency);
+    sampletab[Index] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*ngfm)->clkgpio), Frequency);
     //dbg_printf(1,"Frac=%d\n",GetMasterFrac(Frequency));
     bufferdma_PushSample(Index);
 }
@@ -123,7 +128,8 @@ void ngfmdmasync_SetFrequencySamples(ngfmdmasync_t **ngfm, float *sample, size_t
         if (time_difference < 0)
             time_difference += 1E9;
         int NewAvailable = bufferdma_GetBufferAvailable();
-        librpitx_dbg_printf(1, "New available %d Measure samplerate=%d\n", NewAvailable, (int) ((bufferdma_GetBufferAvailable() - Available) * 1e9 / time_difference));
+        librpitx_dbg_printf(1, "New available %d Measure samplerate=%d\n", NewAvailable,
+                (int) ((bufferdma_GetBufferAvailable() - Available) * 1e9 / time_difference));
         Available = NewAvailable;
         int Index = bufferdma_GetUserMemIndex();
         int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;

@@ -34,21 +34,16 @@
 #include "gpio.h"
 #include "fskburst.h"
 
-void fskburst_Cfskburst(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
-
+void fskburst_Cfskburst(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample,
+        float RatioRamp) {
     *fskbrst = (fskburst_t*) malloc(sizeof(struct fskburst));
-        bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
-        clkgpio_Cclkgpio(&((*fskbrst)->clkgpio));
-        pwmgpio_Cpwmgpio(&((*fskbrst)->pwmgpio));
-        pcmgpio_Cpcmgpio(&((*fskbrst)->pcmgpio));
-        (*fskbrst)->SR_upsample = upsample;
-        (*fskbrst)->Ramp = 0.0;
-        (*fskbrst)->freqdeviation = Deviation;
-
-
-
-
-    //bufferdma(Channel, FifoSize * upsample + 3, 2, 1), freqdeviation(Deviation), SR_upsample(upsample)
+    bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
+    clkgpio_Cclkgpio(&((*fskbrst)->clkgpio));
+    pwmgpio_Cpwmgpio(&((*fskbrst)->pwmgpio));
+    pcmgpio_Cpcmgpio(&((*fskbrst)->pcmgpio));
+    (*fskbrst)->SR_upsample = upsample;
+    (*fskbrst)->Ramp = 0.0;
+    (*fskbrst)->freqdeviation = Deviation;
 
     clkgpio_SetAdvancedPllMode(&((*fskbrst)->clkgpio), true);
     clkgpio_SetCenterFrequency(&((*fskbrst)->clkgpio), TuneFrequency, Deviation * 10); // Write Mult Int and Frac : FixMe carrier is already there
@@ -73,7 +68,10 @@ void fskburst_Cfskburst(fskburst_t **fskbrst, uint64_t TuneFrequency, float Symb
 }
 
 void fskburst_Dfskburst(fskburst_t **fskbrst) {
-
+    clkgpio_Dclkgpio(&((*fskbrst)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*fskbrst)->pwmgpio));
+    pcmgpio_Dpcmgpio(&((*fskbrst)->pcmgpio));
+    free(*fskbrst);
 }
 
 void fskburst_SetDmaAlgo(fskburst_t **fskbrst) {
@@ -128,11 +126,15 @@ void fskburst_SetSymbols(fskburst_t **fskbrst, unsigned char *Symbols, uint32_t 
         for (size_t j = 0; j < (*fskbrst)->Ramp; j++) {
             if (i < Size - 1) {
                 sampletab[i * (*fskbrst)->SR_upsample + j + (*fskbrst)->SR_upsample - (*fskbrst)->Ramp] = (0x5A << 24)
-                        | clkgpio_GetMasterFrac(&((*fskbrst)->clkgpio), (*fskbrst)->freqdeviation * Symbols[i] + j * ((*fskbrst)->freqdeviation * Symbols[i + 1] - (*fskbrst)->freqdeviation * Symbols[i]) / (float) (*fskbrst)->Ramp);
+                        | clkgpio_GetMasterFrac(&((*fskbrst)->clkgpio),
+                                (*fskbrst)->freqdeviation * Symbols[i]
+                                        + j * ((*fskbrst)->freqdeviation * Symbols[i + 1] - (*fskbrst)->freqdeviation * Symbols[i]) / (float) (*fskbrst)->Ramp);
                 librpitx_dbg_printf(2, "Ramp %f ->%f : %d %f\n", (*fskbrst)->freqdeviation * Symbols[i], (*fskbrst)->freqdeviation * Symbols[i + 1], j,
-                        (*fskbrst)->freqdeviation * Symbols[i] + j * ((*fskbrst)->freqdeviation * Symbols[i + 1] - (*fskbrst)->freqdeviation * Symbols[i]) / (float) (*fskbrst)->Ramp);
+                        (*fskbrst)->freqdeviation * Symbols[i]
+                                + j * ((*fskbrst)->freqdeviation * Symbols[i + 1] - (*fskbrst)->freqdeviation * Symbols[i]) / (float) (*fskbrst)->Ramp);
             } else {
-                sampletab[i * (*fskbrst)->SR_upsample + j + (*fskbrst)->SR_upsample - (*fskbrst)->Ramp] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*fskbrst)->clkgpio), (*fskbrst)->freqdeviation * Symbols[i]);
+                sampletab[i * (*fskbrst)->SR_upsample + j + (*fskbrst)->SR_upsample - (*fskbrst)->Ramp] = (0x5A << 24)
+                        | clkgpio_GetMasterFrac(&((*fskbrst)->clkgpio), (*fskbrst)->freqdeviation * Symbols[i]);
             }
 
             cbp++; //SKIP FREQ CB

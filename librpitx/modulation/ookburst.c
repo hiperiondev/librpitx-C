@@ -63,6 +63,10 @@ void ookburst_Cookburst(ookburst_t **ookbrst, uint64_t TuneFrequency, float Symb
 }
 
 void ookburst_Dookburst(ookburst_t **ookburst) {
+    clkgpio_Dclkgpio(&((*ookburst)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*ookburst)->pwmgpio));
+    pcmgpio_Dpcmgpio(&((*ookburst)->pcmgpio));
+    free(*ookburst);
 }
 
 void ookburst_SetDmaAlgo(ookburst_t **ookburst) {

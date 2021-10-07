@@ -612,105 +612,118 @@ void clkgpio_SetPLLMasterLoop(clkgpio_t **clkgpio, int Ki, int Kp, int Ka) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-/*
- void clkgpio_print_clock_tree(clkgpio_t *clkgpio) {
- librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
- printf("PLLC_DIG0=%08x\n", gpioreg[(0x1020 / 4)]);
- printf("PLLC_DIG1=%08x\n", gpioreg[(0x1024 / 4)]);
- printf("PLLC_DIG2=%08x\n", gpioreg[(0x1028 / 4)]);
- printf("PLLC_DIG3=%08x\n", gpioreg[(0x102c / 4)]);
- printf("PLLC_ANA0=%08x\n", gpioreg[(0x1030 / 4)]);
- printf("PLLC_ANA1=%08x\n", gpioreg[(0x1034 / 4)]);
- printf("PLLC_ANA2=%08x\n", gpioreg[(0x1038 / 4)]);
- printf("PLLC_ANA3=%08x\n", gpioreg[(0x103c / 4)]);
- printf("PLLC_DIG0R=%08x\n", gpioreg[(0x1820 / 4)]);
- printf("PLLC_DIG1R=%08x\n", gpioreg[(0x1824 / 4)]);
- printf("PLLC_DIG2R=%08x\n", gpioreg[(0x1828 / 4)]);
- printf("PLLC_DIG3R=%08x\n", gpioreg[(0x182c / 4)]);
+void clkgpio_print_clock_tree(clkgpio_t **clkgpio) {
+    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    printf("PLLC_DIG0=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1020 / 4)]);
+    printf("PLLC_DIG1=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1024 / 4)]);
+    printf("PLLC_DIG2=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1028 / 4)]);
+    printf("PLLC_DIG3=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x102c / 4)]);
+    printf("PLLC_ANA0=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1030 / 4)]);
+    printf("PLLC_ANA1=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1034 / 4)]);
+    printf("PLLC_ANA2=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1038 / 4)]);
+    printf("PLLC_ANA3=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x103c / 4)]);
+    printf("PLLC_DIG0R=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1820 / 4)]);
+    printf("PLLC_DIG1R=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1824 / 4)]);
+    printf("PLLC_DIG2R=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1828 / 4)]);
+    printf("PLLC_DIG3R=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x182c / 4)]);
 
- printf("PLLA_ANA0=%08x\n", gpioreg[(0x1010 / 4)]);
- printf("PLLA_ANA1=%08x prediv=%d\n", gpioreg[(0x1014 / 4)], (gpioreg[(0x1014 / 4)] >> 14) & 1);
- printf("PLLA_ANA2=%08x\n", gpioreg[(0x1018 / 4)]);
- printf("PLLA_ANA3=%08x\n", gpioreg[(0x101c / 4)]);
+    printf("PLLA_ANA0=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1010 / 4)]);
+    printf("PLLA_ANA1=%08x prediv=%d\n", (*clkgpio)->h_gpio->gpioreg[(0x1014 / 4)], ((*clkgpio)->h_gpio->gpioreg[(0x1014 / 4)] >> 14) & 1);
+    printf("PLLA_ANA2=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x1018 / 4)]);
+    printf("PLLA_ANA3=%08x\n", (*clkgpio)->h_gpio->gpioreg[(0x101c / 4)]);
 
- printf("GNRIC CTL=%08x DIV=%8x  ", gpioreg[0], gpioreg[1]);
- printf("VPU   CTL=%08x DIV=%8x\n", gpioreg[2], gpioreg[3]);
- printf("SYS   CTL=%08x DIV=%8x  ", gpioreg[4], gpioreg[5]);
- printf("PERIA CTL=%08x DIV=%8x\n", gpioreg[6], gpioreg[7]);
- printf("PERII CTL=%08x DIV=%8x  ", gpioreg[8], gpioreg[9]);
- printf("H264  CTL=%08x DIV=%8x\n", gpioreg[10], gpioreg[11]);
- printf("ISP   CTL=%08x DIV=%8x  ", gpioreg[12], gpioreg[13]);
- printf("V3D   CTL=%08x DIV=%8x\n", gpioreg[14], gpioreg[15]);
+    printf("GNRIC CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[0], (*clkgpio)->h_gpio->gpioreg[1]);
+    printf("VPU   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[2], (*clkgpio)->h_gpio->gpioreg[3]);
+    printf("SYS   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[4], (*clkgpio)->h_gpio->gpioreg[5]);
+    printf("PERIA CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[6], (*clkgpio)->h_gpio->gpioreg[7]);
+    printf("PERII CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[8], (*clkgpio)->h_gpio->gpioreg[9]);
+    printf("H264  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[10], (*clkgpio)->h_gpio->gpioreg[11]);
+    printf("ISP   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[12], (*clkgpio)->h_gpio->gpioreg[13]);
+    printf("V3D   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[14], (*clkgpio)->h_gpio->gpioreg[15]);
 
- printf("CAM0  CTL=%08x DIV=%8x  ", gpioreg[16], gpioreg[17]);
- printf("CAM1  CTL=%08x DIV=%8x\n", gpioreg[18], gpioreg[19]);
- printf("CCP2  CTL=%08x DIV=%8x  ", gpioreg[20], gpioreg[21]);
- printf("DSI0E CTL=%08x DIV=%8x\n", gpioreg[22], gpioreg[23]);
- printf("DSI0P CTL=%08x DIV=%8x  ", gpioreg[24], gpioreg[25]);
- printf("DPI   CTL=%08x DIV=%8x\n", gpioreg[26], gpioreg[27]);
- printf("GP0   CTL=%08x DIV=%8x  ", gpioreg[0x70 / 4], gpioreg[0x74 / 4]);
- printf("GP1   CTL=%08x DIV=%8x\n", gpioreg[30], gpioreg[31]);
+    printf("CAM0  CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[16], (*clkgpio)->h_gpio->gpioreg[17]);
+    printf("CAM1  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[18], (*clkgpio)->h_gpio->gpioreg[19]);
+    printf("CCP2  CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[20], (*clkgpio)->h_gpio->gpioreg[21]);
+    printf("DSI0E CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[22], (*clkgpio)->h_gpio->gpioreg[23]);
+    printf("DSI0P CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[24], (*clkgpio)->h_gpio->gpioreg[25]);
+    printf("DPI   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[26], (*clkgpio)->h_gpio->gpioreg[27]);
+    printf("GP0   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[0x70 / 4], (*clkgpio)->h_gpio->gpioreg[0x74 / 4]);
+    printf("GP1   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[30], (*clkgpio)->h_gpio->gpioreg[31]);
 
- printf("GP2   CTL=%08x DIV=%8x  ", gpioreg[32], gpioreg[33]);
- printf("HSM   CTL=%08x DIV=%8x\n", gpioreg[34], gpioreg[35]);
- printf("OTP   CTL=%08x DIV=%8x  ", gpioreg[36], gpioreg[37]);
- printf("PCM   CTL=%08x DIV=%8x\n", gpioreg[38], gpioreg[39]);
- printf("PWM   CTL=%08x DIV=%8x  ", gpioreg[40], gpioreg[41]);
- printf("SLIM  CTL=%08x DIV=%8x\n", gpioreg[42], gpioreg[43]);
- printf("SMI   CTL=%08x DIV=%8x  ", gpioreg[44], gpioreg[45]);
- printf("SMPS  CTL=%08x DIV=%8x\n", gpioreg[46], gpioreg[47]);
+    printf("GP2   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[32], (*clkgpio)->h_gpio->gpioreg[33]);
+    printf("HSM   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[34], (*clkgpio)->h_gpio->gpioreg[35]);
+    printf("OTP   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[36], (*clkgpio)->h_gpio->gpioreg[37]);
+    printf("PCM   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[38], (*clkgpio)->h_gpio->gpioreg[39]);
+    printf("PWM   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[40], (*clkgpio)->h_gpio->gpioreg[41]);
+    printf("SLIM  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[42], (*clkgpio)->h_gpio->gpioreg[43]);
+    printf("SMI   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[44], (*clkgpio)->h_gpio->gpioreg[45]);
+    printf("SMPS  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[46], (*clkgpio)->h_gpio->gpioreg[47]);
 
- printf("TCNT  CTL=%08x DIV=%8x  ", gpioreg[48], gpioreg[49]);
- printf("TEC   CTL=%08x DIV=%8x\n", gpioreg[50], gpioreg[51]);
- printf("TD0   CTL=%08x DIV=%8x  ", gpioreg[52], gpioreg[53]);
- printf("TD1   CTL=%08x DIV=%8x\n", gpioreg[54], gpioreg[55]);
+    printf("TCNT  CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[48], (*clkgpio)->h_gpio->gpioreg[49]);
+    printf("TEC   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[50], (*clkgpio)->h_gpio->gpioreg[51]);
+    printf("TD0   CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[52], (*clkgpio)->h_gpio->gpioreg[53]);
+    printf("TD1   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[54], (*clkgpio)->h_gpio->gpioreg[55]);
 
- printf("TSENS CTL=%08x DIV=%8x  ", gpioreg[56], gpioreg[57]);
- printf("TIMER CTL=%08x DIV=%8x\n", gpioreg[58], gpioreg[59]);
- printf("UART  CTL=%08x DIV=%8x  ", gpioreg[60], gpioreg[61]);
- printf("VEC   CTL=%08x DIV=%8x\n", gpioreg[62], gpioreg[63]);
+    printf("TSENS CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[56], (*clkgpio)->h_gpio->gpioreg[57]);
+    printf("TIMER CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[58], (*clkgpio)->h_gpio->gpioreg[59]);
+    printf("UART  CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[60], (*clkgpio)->h_gpio->gpioreg[61]);
+    printf("VEC   CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[62], (*clkgpio)->h_gpio->gpioreg[63]);
 
- printf("PULSE CTL=%08x DIV=%8x  ", gpioreg[100], gpioreg[101]);
- printf("PLLT  CTL=%08x DIV=????????\n", gpioreg[76]);
+    printf("PULSE CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[100], (*clkgpio)->h_gpio->gpioreg[101]);
+    printf("PLLT  CTL=%08x DIV=????????\n", (*clkgpio)->h_gpio->gpioreg[76]);
 
- printf("DSI1E CTL=%08x DIV=%8x  ", gpioreg[86], gpioreg[87]);
- printf("DSI1P CTL=%08x DIV=%8x\n", gpioreg[88], gpioreg[89]);
- printf("AVE0  CTL=%08x DIV=%8x\n", gpioreg[90], gpioreg[91]);
+    printf("DSI1E CTL=%08x DIV=%8x  ", (*clkgpio)->h_gpio->gpioreg[86], (*clkgpio)->h_gpio->gpioreg[87]);
+    printf("DSI1P CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[88], (*clkgpio)->h_gpio->gpioreg[89]);
+    printf("AVE0  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[90], (*clkgpio)->h_gpio->gpioreg[91]);
 
- printf("CMPLLA=%08x  ", gpioreg[0x104 / 4]);
- printf("CMPLLC=%08x \n", gpioreg[0x108 / 4]);
- printf("CMPLLD=%08x   ", gpioreg[0x10C / 4]);
- printf("CMPLLH=%08x \n", gpioreg[0x110 / 4]);
+    printf("CMPLLA=%08x  ", (*clkgpio)->h_gpio->gpioreg[0x104 / 4]);
+    printf("CMPLLC=%08x \n", (*clkgpio)->h_gpio->gpioreg[0x108 / 4]);
+    printf("CMPLLD=%08x   ", (*clkgpio)->h_gpio->gpioreg[0x10C / 4]);
+    printf("CMPLLH=%08x \n", (*clkgpio)->h_gpio->gpioreg[0x110 / 4]);
 
- printf("EMMC  CTL=%08x DIV=%8x\n", gpioreg[112], gpioreg[113]);
- printf("EMMC  CTL=%08x DIV=%8x\n", gpioreg[112], gpioreg[113]);
- printf("EMMC  CTL=%08x DIV=%8x\n", gpioreg[112], gpioreg[113]);
+    printf("EMMC  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[112], (*clkgpio)->h_gpio->gpioreg[113]);
+    printf("EMMC  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[112], (*clkgpio)->h_gpio->gpioreg[113]);
+    printf("EMMC  CTL=%08x DIV=%8x\n", (*clkgpio)->h_gpio->gpioreg[112], (*clkgpio)->h_gpio->gpioreg[113]);
 
- // Sometimes calculated frequencies are off by a factor of 2
- // ANA1 bit 14 may indicate that a /2 prescaler is active
- double xoscmhz = XOSC_FREQUENCY / 1e6;
- printf("PLLA PDIV=%d NDIV=%d FRAC=%d  ", (gpioreg[PLLA_CTRL] >> 12) & 0x7, gpioreg[PLLA_CTRL] & 0x3ff, gpioreg[PLLA_FRAC]);
- printf(" %f MHz\n", xoscmhz * ((float) (gpioreg[PLLA_CTRL] & 0x3ff) + ((float) gpioreg[PLLA_FRAC]) / ((float) (1 << 20))));
- printf("DSI0=%d CORE=%d PER=%d CCP2=%d\n\n", gpioreg[PLLA_DSI0], gpioreg[PLLA_CORE], gpioreg[PLLA_PER], gpioreg[PLLA_CCP2]);
+    // Sometimes calculated frequencies are off by a factor of 2
+    // ANA1 bit 14 may indicate that a /2 prescaler is active
+    double xoscmhz = (*clkgpio)->h_gpio->XOSC_FREQUENCY / 1e6;
+    printf("PLLA PDIV=%d NDIV=%d FRAC=%d  ", ((*clkgpio)->h_gpio->gpioreg[PLLA_CTRL] >> 12) & 0x7, (*clkgpio)->h_gpio->gpioreg[PLLA_CTRL] & 0x3ff,
+            (*clkgpio)->h_gpio->gpioreg[PLLA_FRAC]);
+    printf(" %f MHz\n",
+            xoscmhz * ((float) ((*clkgpio)->h_gpio->gpioreg[PLLA_CTRL] & 0x3ff) + ((float) (*clkgpio)->h_gpio->gpioreg[PLLA_FRAC]) / ((float) (1 << 20))));
+    printf("DSI0=%d CORE=%d PER=%d CCP2=%d\n\n", (*clkgpio)->h_gpio->gpioreg[PLLA_DSI0], (*clkgpio)->h_gpio->gpioreg[PLLA_CORE],
+            (*clkgpio)->h_gpio->gpioreg[PLLA_PER], (*clkgpio)->h_gpio->gpioreg[PLLA_CCP2]);
 
- printf("PLLB PDIV=%d NDIV=%d FRAC=%d  ", (gpioreg[PLLB_CTRL] >> 12) & 0x7, gpioreg[PLLB_CTRL] & 0x3ff, gpioreg[PLLB_FRAC]);
- printf(" %f MHz\n", xoscmhz * ((float) (gpioreg[PLLB_CTRL] & 0x3ff) + ((float) gpioreg[PLLB_FRAC]) / ((float) (1 << 20))));
- printf("ARM=%d SP0=%d SP1=%d SP2=%d\n\n", gpioreg[PLLB_ARM], gpioreg[PLLB_SP0], gpioreg[PLLB_SP1], gpioreg[PLLB_SP2]);
+    printf("PLLB PDIV=%d NDIV=%d FRAC=%d  ", ((*clkgpio)->h_gpio->gpioreg[PLLB_CTRL] >> 12) & 0x7, (*clkgpio)->h_gpio->gpioreg[PLLB_CTRL] & 0x3ff,
+            (*clkgpio)->h_gpio->gpioreg[PLLB_FRAC]);
+    printf(" %f MHz\n",
+            xoscmhz * ((float) ((*clkgpio)->h_gpio->gpioreg[PLLB_CTRL] & 0x3ff) + ((float) (*clkgpio)->h_gpio->gpioreg[PLLB_FRAC]) / ((float) (1 << 20))));
+    printf("ARM=%d SP0=%d SP1=%d SP2=%d\n\n", (*clkgpio)->h_gpio->gpioreg[PLLB_ARM], (*clkgpio)->h_gpio->gpioreg[PLLB_SP0],
+            (*clkgpio)->h_gpio->gpioreg[PLLB_SP1], (*clkgpio)->h_gpio->gpioreg[PLLB_SP2]);
 
- printf("PLLC PDIV=%d NDIV=%d FRAC=%d  ", (gpioreg[PLLC_CTRL] >> 12) & 0x7, gpioreg[PLLC_CTRL] & 0x3ff, gpioreg[PLLC_FRAC]);
- printf(" %f MHz\n", xoscmhz * ((float) (gpioreg[PLLC_CTRL] & 0x3ff) + ((float) gpioreg[PLLC_FRAC]) / ((float) (1 << 20))));
- printf("CORE2=%d CORE1=%d PER=%d CORE0=%d\n\n", gpioreg[PLLC_CORE2], gpioreg[PLLC_CORE1], gpioreg[PLLC_PER], gpioreg[PLLC_CORE0]);
+    printf("PLLC PDIV=%d NDIV=%d FRAC=%d  ", ((*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] >> 12) & 0x7, (*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] & 0x3ff,
+            (*clkgpio)->h_gpio->gpioreg[PLLC_FRAC]);
+    printf(" %f MHz\n",
+            xoscmhz * ((float) ((*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] & 0x3ff) + ((float) (*clkgpio)->h_gpio->gpioreg[PLLC_FRAC]) / ((float) (1 << 20))));
+    printf("CORE2=%d CORE1=%d PER=%d CORE0=%d\n\n", (*clkgpio)->h_gpio->gpioreg[PLLC_CORE2], (*clkgpio)->h_gpio->gpioreg[PLLC_CORE1],
+            (*clkgpio)->h_gpio->gpioreg[PLLC_PER], (*clkgpio)->h_gpio->gpioreg[PLLC_CORE0]);
 
- printf("PLLD %x PDIV=%d NDIV=%d FRAC=%d  ", gpioreg[PLLD_CTRL], (gpioreg[PLLD_CTRL] >> 12) & 0x7, gpioreg[PLLD_CTRL] & 0x3ff, gpioreg[PLLD_FRAC]);
- printf(" %f MHz\n", xoscmhz * ((float) (gpioreg[PLLD_CTRL] & 0x3ff) + ((float) gpioreg[PLLD_FRAC]) / ((float) (1 << 20))));
- printf("DSI0=%d CORE=%d PER=%d DSI1=%d\n\n", gpioreg[PLLD_DSI0], gpioreg[PLLD_CORE], gpioreg[PLLD_PER], gpioreg[PLLD_DSI1]);
+    printf("PLLD %x PDIV=%d NDIV=%d FRAC=%d  ", (*clkgpio)->h_gpio->gpioreg[PLLD_CTRL], ((*clkgpio)->h_gpio->gpioreg[PLLD_CTRL] >> 12) & 0x7,
+            (*clkgpio)->h_gpio->gpioreg[PLLD_CTRL] & 0x3ff, (*clkgpio)->h_gpio->gpioreg[PLLD_FRAC]);
+    printf(" %f MHz\n",
+            xoscmhz * ((float) ((*clkgpio)->h_gpio->gpioreg[PLLD_CTRL] & 0x3ff) + ((float) (*clkgpio)->h_gpio->gpioreg[PLLD_FRAC]) / ((float) (1 << 20))));
+    printf("DSI0=%d CORE=%d PER=%d DSI1=%d\n\n", (*clkgpio)->h_gpio->gpioreg[PLLD_DSI0], (*clkgpio)->h_gpio->gpioreg[PLLD_CORE],
+            (*clkgpio)->h_gpio->gpioreg[PLLD_PER], (*clkgpio)->h_gpio->gpioreg[PLLD_DSI1]);
 
- printf("PLLH PDIV=%d NDIV=%d FRAC=%d  ", (gpioreg[PLLH_CTRL] >> 12) & 0x7, gpioreg[PLLH_CTRL] & 0x3ff, gpioreg[PLLH_FRAC]);
- printf(" %f MHz\n", xoscmhz * ((float) (gpioreg[PLLH_CTRL] & 0x3ff) + ((float) gpioreg[PLLH_FRAC]) / ((float) (1 << 20))));
- printf("AUX=%d RCAL=%d PIX=%d STS=%d\n\n", gpioreg[PLLH_AUX], gpioreg[PLLH_RCAL], gpioreg[PLLH_PIX], gpioreg[PLLH_STS]);
- librpitx_dbg_printf(2, "< func: %s |\n", __func__);
- }
- */
+    printf("PLLH PDIV=%d NDIV=%d FRAC=%d  ", ((*clkgpio)->h_gpio->gpioreg[PLLH_CTRL] >> 12) & 0x7, (*clkgpio)->h_gpio->gpioreg[PLLH_CTRL] & 0x3ff,
+            (*clkgpio)->h_gpio->gpioreg[PLLH_FRAC]);
+    printf(" %f MHz\n",
+            xoscmhz * ((float) ((*clkgpio)->h_gpio->gpioreg[PLLH_CTRL] & 0x3ff) + ((float) (*clkgpio)->h_gpio->gpioreg[PLLH_FRAC]) / ((float) (1 << 20))));
+    printf("AUX=%d RCAL=%d PIX=%d STS=%d\n\n", (*clkgpio)->h_gpio->gpioreg[PLLH_AUX], (*clkgpio)->h_gpio->gpioreg[PLLH_RCAL],
+            (*clkgpio)->h_gpio->gpioreg[PLLH_PIX], (*clkgpio)->h_gpio->gpioreg[PLLH_STS]);
+    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+}
 
 void clkgpio_enableclk(clkgpio_t **clkgpio, int gpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);

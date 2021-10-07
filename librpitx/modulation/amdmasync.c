@@ -60,23 +60,21 @@ void amdmasync_amdmasync(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t S
 
     padgpio_t *pad;
     padgpio_Cpadgpio(&pad);
-
     (*amdma)->Originfsel = (*pad).h_gpio->gpioreg[PADS_GPIO_0];
-
     amdmasync_SetDmaAlgo(amdma);
-
+    padgpio_Dpadgpio(&pad);
 }
 
 void amdmasync_Damdmasync(amdmasync_t **amdma) {
     clkgpio_disableclk(&((*amdma)->clkgpio), 4);
     padgpio_t *pad;
     padgpio_Cpadgpio(&pad);
-
     (*pad).h_gpio->gpioreg[PADS_GPIO_0] = (*amdma)->Originfsel;
-
     clkgpio_Dclkgpio(&((*amdma)->clkgpio));
     pwmgpio_Dpwmgpio(&((*amdma)->pwmgpio));
     pcmgpio_Dpcmgpio(&((*amdma)->pcmgpio));
+    padgpio_Dpadgpio(&pad);
+    free(*amdma);
 }
 
 void amdmasync_SetDmaAlgo(amdmasync_t **amdma) {

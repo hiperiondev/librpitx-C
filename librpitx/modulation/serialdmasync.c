@@ -35,9 +35,9 @@
 
 void serialdmasync_Cserialdmasync(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput) {
     *serialdmas = (serialdmasync_t*) malloc(sizeof(struct serialdmasync));
-       bufferdma_Cbufferdma(Channel, FifoSize, 1, 1);
-       clkgpio_Cclkgpio(&((*serialdmas)->clkgpio));
-       pwmgpio_Cpwmgpio(&((*serialdmas)->pwmgpio));
+    bufferdma_Cbufferdma(Channel, FifoSize, 1, 1);
+    clkgpio_Cclkgpio(&((*serialdmas)->clkgpio));
+    pwmgpio_Cpwmgpio(&((*serialdmas)->pwmgpio));
 
     if (dualoutput) //Fixme if 2pin we want maybe 2*SRATE as it is distributed over 2 pin
     {
@@ -63,6 +63,10 @@ void serialdmasync_Cserialdmasync(serialdmasync_t **serialdmas, uint32_t SampleR
 }
 
 void serialdmasync_Dserialdmasync(serialdmasync_t **serialdmas) {
+    clkgpio_Dclkgpio(&((*serialdmas)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*serialdmas)->pwmgpio));
+    bufferdma_Dbufferdma();
+    free(*serialdmas);
 }
 
 void serialdmasync_SetDmaAlgo(serialdmasync_t **serialdmas) {

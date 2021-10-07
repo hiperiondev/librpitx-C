@@ -44,14 +44,14 @@ void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
 
     *atvl = (atv_t*) malloc(sizeof(struct atv));
     dma_Cdma(Channel, CB_ATV, Lines * 52 + 3);
-           clkgpio_Cclkgpio(&((*atvl)->clkgpio));
-           pwmgpio_Cpwmgpio(&((*atvl)->pwmgpio));
-           pcmgpio_Cpcmgpio(&((*atvl)->pcmgpio));
+    clkgpio_Cclkgpio(&((*atvl)->clkgpio));
+    pwmgpio_Cpwmgpio(&((*atvl)->pwmgpio));
+    pcmgpio_Cpcmgpio(&((*atvl)->pcmgpio));
 // Need 2 more bytes for 0 and 1
 // Need 6 CB more for sync, if so as 2CBby sample : 3
 
-           (*atvl)->SampleRate = SR;
-           (*atvl)->tunefreq = TuneFrequency;
+    (*atvl)->SampleRate = SR;
+    (*atvl)->tunefreq = TuneFrequency;
     clkgpio_SetAdvancedPllMode(&((*atvl)->clkgpio), true);
     clkgpio_SetCenterFrequency(&((*atvl)->clkgpio), TuneFrequency, (*atvl)->SampleRate);
     clkgpio_SetFrequency(&((*atvl)->clkgpio), 0);
@@ -66,7 +66,7 @@ void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
         pcmgpio_SetFrequency(&((*atvl)->pcmgpio), (*atvl)->SampleRate);
     }
 
-    padgpio_t *pad = (padgpio_t *)malloc(sizeof(struct padgpio));
+    padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
     (*atvl)->Originfsel = pad->h_gpio->gpioreg[PADS_GPIO_0];
 
     usermem[(usermemsize - 2)] = (0x5A << 24) + (1 & 0x7) + (1 << 4) + (0 << 3); // Amp 1
@@ -74,13 +74,19 @@ void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
     usermem[(usermemsize - 3)] = (0x5A << 24) + (4 & 0x7) + (1 << 4) + (0 << 3); // Amp 4
 
     atv_SetDmaAlgo(atvl);
-    free(pad);
+    padgpio_Dpadgpio(&pad);
 }
 
 void atv_Datv(atv_t **atvl) {
     clkgpio_disableclk(&((*atvl)->clkgpio), 4);
-    padgpio_t *pad = (padgpio_t *)malloc(sizeof(struct padgpio));
+    padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
     pad->h_gpio->gpioreg[PADS_GPIO_0] = (*atvl)->Originfsel;
+
+    clkgpio_Dclkgpio(&((*atvl)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*atvl)->pwmgpio));
+    pcmgpio_Dpcmgpio(&((*atvl)->pcmgpio));
+    padgpio_Dpadgpio(&pad);
+    free(*atvl);
 }
 
 void atv_SetDmaAlgo(atv_t **atvl) {
@@ -170,7 +176,7 @@ void atv_SetDmaAlgo(atv_t **atvl) {
     librpitx_dbg_printf(1, "Last cbp :  %d \n", ((uintptr_t) (cbp) - (uintptr_t) (cbarray)) / sizeof(dma_cb_t));
 }
 
-void atv_SetFrame(atv_t **atvl,unsigned char *Luminance, size_t Lines) {
+void atv_SetFrame(atv_t **atvl, unsigned char *Luminance, size_t Lines) {
     for (size_t i = 0; i < Lines; i++) {
         for (size_t x = 0; x < 52; x++) {
             int AmplitudePAD = (Luminance[i * 52 + x] / 255.0) * 6.0 + 1; //1 to 7

@@ -90,6 +90,7 @@ void iqdmasync_Diqdmasync(iqdmasync_t **iqdmas) {
     clkgpio_Dclkgpio(&((*iqdmas)->clkgpio));
     pwmgpio_Dpwmgpio(&((*iqdmas)->pwmgpio));
     pcmgpio_Dpcmgpio(&((*iqdmas)->pcmgpio));
+    free(*iqdmas);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }

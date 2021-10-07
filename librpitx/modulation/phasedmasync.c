@@ -115,6 +115,12 @@ void phasedmasync_Cphasedmasync(phasedmasync_t **phasedmas, uint64_t TuneFrequen
 
 void phasedmasync_Dphasedmasync(phasedmasync_t **phasedmas) {
     pwmgpio_disablepwm(&((*phasedmas)->pwmgpio), 12);
+
+    clkgpio_Dclkgpio(&((*phasedmas)->clkgpio));
+    pwmgpio_Dpwmgpio(&((*phasedmas)->pwmgpio));
+    pcmgpio_Dpcmgpio(&((*phasedmas)->pcmgpio));
+    bufferdma_Dbufferdma();
+    free(*phasedmas);
 }
 
 void phasedmasync_SetDmaAlgo(phasedmasync_t **phasedmas) {
