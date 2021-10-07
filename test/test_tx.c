@@ -202,6 +202,9 @@ int main(int argc, char *argv[]) {
 #define IQBURST 4000 // For IQ
 
     iqdmasync_t *iqsender;
+    amdmasync_t *amsender;
+    ngfmdmasync_t *fmsender;
+    float AmOrFmBuffer[IQBURST];
     float _Complex CIQBuffer_[IQBURST];
     int Decimation = 1;
     int FifoSize = IQBURST * 4;
@@ -213,13 +216,23 @@ int main(int argc, char *argv[]) {
             iqdmasync_Setppm(&iqsender, ppmpll);
         }
             break;
+
+        case MODE_RPITX_RFA: //Amplitude
+        {
+            amdmasync_Camdmasync(&amsender, SetFrequency, SampleRate, 14, FifoSize);
+        }
+            break;
+
+        case MODE_RPITX_RF: //Frequency
+        {
+            ngfmdmasync_Cngfmdmasync(&fmsender, SetFrequency, SampleRate, 14, FifoSize, false);
+        }
     }
 
     while (running) {
         switch (Mode) {
             case MODE_RPITX_IQ:
             case MODE_RPITX_IQ_FLOAT: {
-
                 int CplxSampleNumber = 0;
 
                 switch (Mode) {
@@ -244,6 +257,7 @@ int main(int argc, char *argv[]) {
 
                     }
                         break;
+
                     case MODE_RPITX_IQ_FLOAT: {
                         static float IQBuffer[IQBURST * 2];
                         int nbread = fread(IQBuffer, sizeof(float), IQBURST * 2, FileInHandle);
@@ -269,6 +283,50 @@ int main(int argc, char *argv[]) {
 
             }
                 break;
+
+            case MODE_RPITX_RFA:    //Amplitude
+            case MODE_RPITX_RF:    //Frequence
+            {
+
+                typedef struct {
+                    double Frequency;
+                    uint32_t WaitForThisSample;
+                } samplerf_t;
+
+                int SampleNumber = 0;
+                static samplerf_t RfBuffer[IQBURST];
+                int nbread = fread(RfBuffer, sizeof(samplerf_t), IQBURST, FileInHandle);
+                //if(nbread==0) continue;
+                if (nbread > 0) {
+                    for (int i = 0; i < nbread; i++) {
+                        AmOrFmBuffer[SampleNumber++] = (float) (RfBuffer[i].Frequency);
+
+                    }
+                } else {
+                    printf("End of file\n");
+                    if (loop_mode_flag && useStdin)
+                        fseek(FileInHandle, 0, SEEK_SET);
+                    else
+                        running = false;
+                }
+                switch (Mode) {
+                    case MODE_RPITX_RFA: {
+                        amdmasync_SetAmSamples(&amsender, AmOrFmBuffer, SampleNumber);
+                    }
+                        break;
+                    case MODE_RPITX_RF: {
+                        ngfmdmasync_SetFrequencySamples(&fmsender, AmOrFmBuffer, SampleNumber);
+                    }
+                        break;
+                }
+
+            }
+                break;
+
+            case MODE_RPITX_VFO: {
+
+            }
+                break;
         }
     }
 
@@ -276,6 +334,14 @@ int main(int argc, char *argv[]) {
         case MODE_RPITX_IQ:
         case MODE_RPITX_IQ_FLOAT:
             iqdmasync_Diqdmasync(&iqsender);
+            break;
+
+        case MODE_RPITX_RFA:
+            amdmasync_Damdmasync(&amsender);
+            break;
+
+        case MODE_RPITX_RF:
+            ngfmdmasync_Dngfmdmasync(&fmsender);
             break;
     }
 }
