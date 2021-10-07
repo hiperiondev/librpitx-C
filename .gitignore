@@ -52,7 +52,7 @@ Mkfile.old
 dkms.conf
 
 .project
-Release/
+#Release/
 .settings
 .cproject
 temp/
