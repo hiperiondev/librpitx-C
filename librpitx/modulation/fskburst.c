@@ -34,7 +34,7 @@
 #include "gpio.h"
 #include "fskburst.h"
 
-void fskburst_Cfskburst(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample,
+void fskburst_init(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample,
         float RatioRamp) {
     *fskbrst = (fskburst_t*) malloc(sizeof(struct fskburst));
     bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
@@ -67,7 +67,7 @@ void fskburst_Cfskburst(fskburst_t **fskbrst, uint64_t TuneFrequency, float Symb
     fskburst_SetDmaAlgo(fskbrst);
 }
 
-void fskburst_Dfskburst(fskburst_t **fskbrst) {
+void fskburst_deinit(fskburst_t **fskbrst) {
     clkgpio_Dclkgpio(&((*fskbrst)->clkgpio));
     pwmgpio_Dpwmgpio(&((*fskbrst)->pwmgpio));
     pcmgpio_Dpcmgpio(&((*fskbrst)->pcmgpio));

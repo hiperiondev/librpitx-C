@@ -62,8 +62,8 @@ typedef struct SampleOOKTiming {
            size_t duration;
 } SampleOOKTiming;
 
-void ookburst_Cookburst(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
-void ookburst_Dookburst(ookburst_t **ookburst);
+void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
+void ookburst_deinit(ookburst_t **ookburst);
 void ookburst_SetDmaAlgo(ookburst_t **ookburst);
 void ookburst_SetSymbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t Size);
 

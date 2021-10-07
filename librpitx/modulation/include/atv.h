@@ -42,8 +42,8 @@ struct atv {
 };
 typedef struct atv atv_t;
 
-void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines);
-void atv_Datv(atv_t **atvl);
+void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines);
+void atv_deinit(atv_t **atvl);
 void atv_SetDmaAlgo(atv_t **atvl);
 void atv_SetFrame(atv_t **atvl,unsigned char *Luminance, size_t Lines);
 

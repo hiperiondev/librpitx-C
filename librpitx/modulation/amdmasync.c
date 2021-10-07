@@ -35,7 +35,7 @@
 #include "gpio.h"
 #include "amdmasync.h"
 
-void amdmasync_Camdmasync(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize) {
+void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize) {
     *amdma = (amdmasync_t*) malloc(sizeof(struct amdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 3, 2);
     clkgpio_Cclkgpio(&((*amdma)->clkgpio));
@@ -65,7 +65,7 @@ void amdmasync_Camdmasync(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t 
     padgpio_Dpadgpio(&pad);
 }
 
-void amdmasync_Damdmasync(amdmasync_t **amdma) {
+void amdmasync_deinit(amdmasync_t **amdma) {
     clkgpio_disableclk(&((*amdma)->clkgpio), 4);
     padgpio_t *pad;
     padgpio_Cpadgpio(&pad);

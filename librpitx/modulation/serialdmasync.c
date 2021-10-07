@@ -33,7 +33,7 @@
 #include "dma.h"
 #include "serialdmasync.h"
 
-void serialdmasync_Cserialdmasync(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput) {
+void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput) {
     *serialdmas = (serialdmasync_t*) malloc(sizeof(struct serialdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 1, 1);
     clkgpio_Cclkgpio(&((*serialdmas)->clkgpio));
@@ -62,7 +62,7 @@ void serialdmasync_Cserialdmasync(serialdmasync_t **serialdmas, uint32_t SampleR
 
 }
 
-void serialdmasync_Dserialdmasync(serialdmasync_t **serialdmas) {
+void serialdmasync_deinit(serialdmasync_t **serialdmas) {
     clkgpio_Dclkgpio(&((*serialdmas)->clkgpio));
     pwmgpio_Dpwmgpio(&((*serialdmas)->pwmgpio));
     bufferdma_Dbufferdma();

@@ -40,7 +40,7 @@
 //#define CB_ATV (6 * 4 + 5 * 4 + 5 * 4 + (304 + 305) * (4 + 52 * 2))
 #define CB_ATV 70000
 
-void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines) {
+void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines) {
 
     *atvl = (atv_t*) malloc(sizeof(struct atv));
     dma_Cdma(Channel, CB_ATV, Lines * 52 + 3);
@@ -77,7 +77,7 @@ void atv_Catv(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
     padgpio_Dpadgpio(&pad);
 }
 
-void atv_Datv(atv_t **atvl) {
+void atv_deinit(atv_t **atvl) {
     clkgpio_disableclk(&((*atvl)->clkgpio), 4);
     padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
     pad->h_gpio->gpioreg[PADS_GPIO_0] = (*atvl)->Originfsel;

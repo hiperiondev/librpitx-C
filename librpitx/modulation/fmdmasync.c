@@ -33,13 +33,13 @@
 #include "gpio.h"
 #include "fmdmasync.h"
 
-void fmdmasync_Cfmdmasync(int Channel, uint32_t FifoSize) {
+void fmdmasync_init(int Channel, uint32_t FifoSize) {
     dma_Cdma(Channel, FifoSize * 2, FifoSize);
     fmdmasync_SetDmaAlgo();
     fmdmasync_FillMemory(12, 1472);
 }
 
-void fmdmasync_Dfmdmasync(void) {
+void fmdmasync_deinit(void) {
     dma_Ddma();
 }
 

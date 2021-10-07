@@ -34,7 +34,7 @@
 #include "util.h"
 #include "ngfmdmasync.h"
 
-void ngfmdmasync_Cngfmdmasync(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm) {
+void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm) {
     *ngfm = (ngfmdmasync_t*) malloc(sizeof(struct ngfmdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 2, 1);
     clkgpio_Cclkgpio(&((*ngfm)->clkgpio));
@@ -66,7 +66,7 @@ void ngfmdmasync_Cngfmdmasync(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint
     // Max spurious avoid is to be in the center ! Theory shoud be that spurious are set away at 19.2/2= 9.6Mhz ! But need to get account of div of PLLClock
 }
 
-void ngfmdmasync_Dngfmdmasync(ngfmdmasync_t **ngfm) {
+void ngfmdmasync_deinit(ngfmdmasync_t **ngfm) {
     clkgpio_disableclk(&((*ngfm)->clkgpio), 4);
 
     clkgpio_Dclkgpio(&((*ngfm)->clkgpio));

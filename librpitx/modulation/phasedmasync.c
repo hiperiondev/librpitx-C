@@ -38,7 +38,7 @@
 #include "phasedmasync.h"
 
 //Stable tune for this pwm mode is up to 90MHZ
-void phasedmasync_Cphasedmasync(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize) {
+void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize) {
     *phasedmas = (phasedmasync_t*) malloc(sizeof(struct phasedmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 2, 1); // Number of phase between 2 and 16
     clkgpio_Cclkgpio(&((*phasedmas)->clkgpio));
@@ -113,7 +113,7 @@ void phasedmasync_Cphasedmasync(phasedmasync_t **phasedmas, uint64_t TuneFrequen
     }
 }
 
-void phasedmasync_Dphasedmasync(phasedmasync_t **phasedmas) {
+void phasedmasync_deinit(phasedmasync_t **phasedmas) {
     pwmgpio_disablepwm(&((*phasedmas)->pwmgpio), 12);
 
     clkgpio_Dclkgpio(&((*phasedmas)->clkgpio));

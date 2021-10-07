@@ -212,20 +212,20 @@ int main(int argc, char *argv[]) {
     switch (Mode) {
         case MODE_RPITX_IQ:
         case MODE_RPITX_IQ_FLOAT: {
-            iqdmasync_Ciqdmasync(&iqsender, SetFrequency, SampleRate, 14, FifoSize, MODE_IQ);
+            iqdmasync_init(&iqsender, SetFrequency, SampleRate, 14, FifoSize, MODE_IQ);
             iqdmasync_Setppm(&iqsender, ppmpll);
         }
             break;
 
         case MODE_RPITX_RFA: //Amplitude
         {
-            amdmasync_Camdmasync(&amsender, SetFrequency, SampleRate, 14, FifoSize);
+            amdmasync_init(&amsender, SetFrequency, SampleRate, 14, FifoSize);
         }
             break;
 
         case MODE_RPITX_RF: //Frequency
         {
-            ngfmdmasync_Cngfmdmasync(&fmsender, SetFrequency, SampleRate, 14, FifoSize, false);
+            ngfmdmasync_init(&fmsender, SetFrequency, SampleRate, 14, FifoSize, false);
         }
     }
 
@@ -333,15 +333,15 @@ int main(int argc, char *argv[]) {
     switch (Mode) {
         case MODE_RPITX_IQ:
         case MODE_RPITX_IQ_FLOAT:
-            iqdmasync_Diqdmasync(&iqsender);
+            iqdmasync_deinit(&iqsender);
             break;
 
         case MODE_RPITX_RFA:
-            amdmasync_Damdmasync(&amsender);
+            amdmasync_deinit(&amsender);
             break;
 
         case MODE_RPITX_RF:
-            ngfmdmasync_Dngfmdmasync(&fmsender);
+            ngfmdmasync_deinit(&fmsender);
             break;
     }
 }

@@ -34,7 +34,7 @@
 #include "gpio.h"
 #include "ookburst.h"
 
-void ookburst_Cookburst(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
+void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
     *ookbrst = (ookburst_t*) malloc(sizeof(struct ookburst));
     bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
     clkgpio_Cclkgpio(&((*ookbrst)->clkgpio));
@@ -62,7 +62,7 @@ void ookburst_Cookburst(ookburst_t **ookbrst, uint64_t TuneFrequency, float Symb
     ookburst_SetDmaAlgo(ookbrst);
 }
 
-void ookburst_Dookburst(ookburst_t **ookburst) {
+void ookburst_deinit(ookburst_t **ookburst) {
     clkgpio_Dclkgpio(&((*ookburst)->clkgpio));
     pwmgpio_Dpwmgpio(&((*ookburst)->pwmgpio));
     pcmgpio_Dpcmgpio(&((*ookburst)->pcmgpio));
@@ -143,7 +143,7 @@ void ookburst_SetSymbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t 
 // SampleRate is set to 0.1MHZ,means 10us granularity, MaxMessageDuration in us
 void ookbursttiming_Cookbursttiming(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration) {
     *ookbursttm = (ookbursttiming_t*) malloc(sizeof(struct ookbursttiming));
-    ookburst_Cookburst(ookbrst, TuneFrequency, 1e5, 14, MaxMessageDuration / 10, 1, 0.0);
+    ookburst_init(ookbrst, TuneFrequency, 1e5, 14, MaxMessageDuration / 10, 1, 0.0);
     (*ookbursttm)->m_MaxMessage = MaxMessageDuration;
     (*ookbursttm)->ookrenderbuffer = (unsigned char*) malloc(sizeof(unsigned char) * (*ookbursttm)->m_MaxMessage);
 }

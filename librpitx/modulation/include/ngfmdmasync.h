@@ -45,8 +45,8 @@ struct ngfmdmasync {
 };
 typedef struct ngfmdmasync ngfmdmasync_t;
 
-void ngfmdmasync_Cngfmdmasync(ngfmdmasync_t **ngfm,uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm);
-void ngfmdmasync_Dngfmdmasync(ngfmdmasync_t **ngfm);
+void ngfmdmasync_init(ngfmdmasync_t **ngfm,uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm);
+void ngfmdmasync_deinit(ngfmdmasync_t **ngfm);
 void ngfmdmasync_SetDmaAlgo(ngfmdmasync_t **ngfm);
 void ngfmdmasync_SetPhase(ngfmdmasync_t **ngfm,bool inversed);
 void ngfmdmasync_SetFrequencySample(ngfmdmasync_t **ngfm,uint32_t Index, float Frequency);

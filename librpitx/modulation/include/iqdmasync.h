@@ -54,8 +54,8 @@ struct iqdmasync {
 };
 typedef struct iqdmasync iqdmasync_t;
 
-void iqdmasync_Ciqdmasync(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode);
-void iqdmasync_Diqdmasync(iqdmasync_t **iqdmas);
+void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode);
+void iqdmasync_deinit(iqdmasync_t **iqdmas);
 void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) ;
 void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas);
 void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
