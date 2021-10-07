@@ -44,6 +44,7 @@
 void gpio_init(gpio_t **gpio, uint32_t base, uint32_t len) {
     librpitx_dbg_printf(2, "> func: %s base:%d len:%d (file %s | line %d)\n", __func__, base, len, __FILE__, __LINE__);
 
+    *gpio = (gpio_t*) malloc(sizeof(struct gpio));
     (*gpio)->pi_is_2711 = false;
     (*gpio)->XOSC_FREQUENCY = 19200000;
     (*gpio)->gpioreg = NULL;
@@ -129,22 +130,15 @@ void dmagpio_init(dmagpio_t **dmagio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *dmagio = (dmagpio_t*) malloc(sizeof(struct dmagpio));
-    if (*dmagio == NULL)
-        librpitx_dbg_printf(2, "!! dmagpio_Cdmagpio dmagpio == NULL\n");
-    else
-        librpitx_dbg_printf(2, "!! dmagpio_Cdmagpio dmagpio = %p\n", dmagio);
-
-    (*dmagio)->h_gpio = (gpio_t*) malloc(sizeof(gpio_t));
     gpio_init(&((*dmagio)->h_gpio), DMA_BASE, DMA_LEN);
-    if ((*dmagio)->h_gpio == NULL)
-        librpitx_dbg_printf(2, "!! dmagpio_Cdmagpio dmagio->h_gpio == NULL\n");
+
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
 void dmagpio_deinit(dmagpio_t **dmagio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    free((*dmagio)->h_gpio);
+    gpio_deinit(&(*dmagio)->h_gpio);
     free((*dmagio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -155,7 +149,6 @@ void clkgpio_init(clkgpio_t **clkgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *clkgpio = (clkgpio_t*) malloc(sizeof(struct clkgpio));
-    (*clkgpio)->h_gpio = (gpio_t*) malloc(sizeof(struct gpio));
     gpio_init(&((*clkgpio)->h_gpio), CLK_BASE, CLK_LEN);
     (*clkgpio)->gengpio = (generalgpio_t*) malloc(sizeof(struct generalgpio));
     generalgpio_init(&(*clkgpio)->gengpio);
@@ -173,8 +166,8 @@ void clkgpio_deinit(clkgpio_t **clkgpio) {
     (*clkgpio)->h_gpio->gpioreg[GPCLK_CNTL] = 0x5A000000 | ((*clkgpio)->Mash << 9) | (*clkgpio)->pllnumber | (0 << 4); //4 is START CLK
     //gpioreg[GPCLK_CNTL_2] = 0x5A000000 | (Mash << 9) | pllnumber | (0 << 4); //4 is START CLK
     usleep(100);
-    free((*clkgpio)->gengpio);
-    free((*clkgpio)->h_gpio);
+    generalgpio_deinit(&(*clkgpio)->gengpio);
+    gpio_deinit(&(*clkgpio)->h_gpio);
     free((*clkgpio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -802,7 +795,6 @@ void generalgpio_init(generalgpio_t **generalgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *generalgpio = (generalgpio_t*) malloc(sizeof(struct generalgpio));
-    (*generalgpio)->h_gpio = (gpio_t*) malloc(sizeof(struct gpio));
     gpio_init(&((*generalgpio)->h_gpio), /*gpio_GetPeripheralBase() + */GENERAL_BASE, GENERAL_LEN);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -811,7 +803,7 @@ void generalgpio_init(generalgpio_t **generalgpio) {
 void generalgpio_deinit(generalgpio_t **generalgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    free((*generalgpio)->h_gpio);
+    gpio_deinit(&(*generalgpio)->h_gpio);
     free((*generalgpio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -862,11 +854,8 @@ void pwmgpio_init(pwmgpio_t **pwmgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *pwmgpio = (pwmgpio_t*) malloc(sizeof(struct pwmgpio));
-    (*pwmgpio)->h_gpio = (gpio_t*) malloc(sizeof(struct gpio));
     gpio_init(&((*pwmgpio)->h_gpio), /*gpio_GetPeripheralBase() + */PWM_BASE, PWM_LEN);
-    (*pwmgpio)->gengpio = malloc(sizeof(struct generalgpio));
     generalgpio_init(&((*pwmgpio)->gengpio));
-    (*pwmgpio)->clk = (clkgpio_t*) malloc(sizeof(struct clkgpio));
     clkgpio_init(&(*pwmgpio)->clk);
     (*pwmgpio)->pllnumber = 0;
     (*pwmgpio)->Mash = 0;
@@ -883,9 +872,9 @@ void pwmgpio_deinit(pwmgpio_t **pwmgpio) {
     (*pwmgpio)->h_gpio->gpioreg[PWM_CTL] = 0;
     (*pwmgpio)->h_gpio->gpioreg[PWM_DMAC] = 0;
 
-    free((*pwmgpio)->gengpio);
-    free((*pwmgpio)->clk);
-    free((*pwmgpio)->h_gpio);
+    generalgpio_deinit(&(*pwmgpio)->gengpio);
+    clkgpio_deinit(&(*pwmgpio)->clk);
+    gpio_deinit(&(*pwmgpio)->h_gpio);
     free((*pwmgpio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -1046,9 +1035,7 @@ void pcmgpio_init(pcmgpio_t **pcmgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *pcmgpio = (pcmgpio_t*) malloc(sizeof(struct pcmgpio));
-    (*pcmgpio)->h_gpio = (gpio_t*) malloc(sizeof(struct gpio));
     gpio_init(&((*pcmgpio)->h_gpio), PCM_BASE, PCM_LEN);
-    (*pcmgpio)->clk = (clkgpio_t*) malloc(sizeof(struct clkgpio));
     clkgpio_init(&(*pcmgpio)->clk);
     (*pcmgpio)->pllnumber = 0;
     (*pcmgpio)->Mash = 0;
@@ -1062,8 +1049,8 @@ void pcmgpio_init(pcmgpio_t **pcmgpio) {
 void pcmgpio_deinit(pcmgpio_t **pcmgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    free((*pcmgpio)->h_gpio);
-    free((*pcmgpio)->clk);
+    gpio_deinit(&(*pcmgpio)->h_gpio);
+    clkgpio_deinit(&(*pcmgpio)->clk);
     free((*pcmgpio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -1162,7 +1149,6 @@ void padgpio_init(padgpio_t **padgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *padgpio = (padgpio_t*) malloc(sizeof(struct padgpio));
-    (*padgpio)->h_gpio = (gpio_t*) malloc(sizeof(struct gpio));
     gpio_init(&((*padgpio)->h_gpio), PADS_GPIO, PADS_GPIO_LEN);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -1171,7 +1157,7 @@ void padgpio_init(padgpio_t **padgpio) {
 void padgpio_deinit(padgpio_t **padgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    free((*padgpio)->h_gpio);
+    gpio_deinit(&(*padgpio)->h_gpio);
     free((*padgpio));
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
