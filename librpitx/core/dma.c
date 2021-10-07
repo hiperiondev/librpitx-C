@@ -314,7 +314,6 @@ bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t
 
 ///*************************************** BUFFER DMA ********************************************************
 void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample) {
-
     dma_Cdma(Channel, tbuffersize * tcbbysample, tbuffersize * tregisterbysample);
 
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
@@ -322,7 +321,7 @@ void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysampl
     buffersize = tbuffersize;
     cbbysample = tcbbysample;
     registerbysample = tregisterbysample;
-    librpitx_dbg_printf(1, "BufferSize %d , cb %d user %d\n", buffersize, buffersize * cbbysample, buffersize * registerbysample);
+    librpitx_dbg_printf(1, "BufferSize %d, cb %d user %d\n", buffersize, buffersize * cbbysample, buffersize * registerbysample);
 
     current_sample = 0;
     last_sample = 0;

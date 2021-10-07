@@ -142,6 +142,7 @@ void ookburst_SetSymbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t 
 //****************************** OOK BURST TIMING *****************************************
 // SampleRate is set to 0.1MHZ,means 10us granularity, MaxMessageDuration in us
 void ookbursttiming_Cookbursttiming(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration) {
+    *ookbursttm = (ookbursttiming_t*) malloc(sizeof(struct ookbursttiming));
     ookburst_Cookburst(ookbrst, TuneFrequency, 1e5, 14, MaxMessageDuration / 10, 1, 0.0);
     (*ookbursttm)->m_MaxMessage = MaxMessageDuration;
     (*ookbursttm)->ookrenderbuffer = (unsigned char*) malloc(sizeof(unsigned char) * (*ookbursttm)->m_MaxMessage);
@@ -150,6 +151,7 @@ void ookbursttiming_Cookbursttiming(ookbursttiming_t **ookbursttm, ookburst_t **
 void ookbursttiming_Dookbursttiming(ookbursttiming_t **ookbursttm) {
     if ((*ookbursttm)->ookrenderbuffer != NULL)
         free((*ookbursttm)->ookrenderbuffer);
+    free(*ookbursttm);
 }
 
 void ookbursttiming_SendMessage(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *TabSymbols, size_t Size) {

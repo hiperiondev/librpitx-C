@@ -34,7 +34,6 @@
 #include "dma.h"
 #include "gpio.h"
 
-
 struct fskburst {
         float freqdeviation;
      uint32_t Originfsel;
