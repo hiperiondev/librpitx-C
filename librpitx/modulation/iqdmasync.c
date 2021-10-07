@@ -43,7 +43,7 @@
 void iqdmasync_Ciqdmasync(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode) {
     librpitx_dbg_printf(2, "> func: (iqdmasync_iqdmasync) %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    *iqdmas = (iqdmasync_t*) malloc(sizeof(iqdmasync));
+    *iqdmas = (iqdmasync_t*) malloc(sizeof(struct iqdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 4, 3);
     clkgpio_Cclkgpio(&((*iqdmas)->clkgpio));
     pwmgpio_Cpwmgpio(&((*iqdmas)->pwmgpio));
