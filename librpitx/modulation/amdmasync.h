@@ -25,47 +25,31 @@
  *
  */
 
-#ifndef IQDMASYNC_H_
-#define IQDMASYNC_H_
+#ifndef DEF_AMDMASYNC
+#define DEF_AMDMASYNC
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#include <stdint.h>
 #include <stdbool.h>
-#include "gpio.h"
 #include "dma.h"
-#include "dsp.h"
+#include "gpio.h"
 
-#define MODE_IQ     0
-#define MODE_FREQ_A 1
-
-struct iqdmasync {
+struct amdmasync {
      uint64_t tunefreq;
          bool syncwithpwm;
-     uint32_t Originfsel; //Save the original FSEL GPIO
+     uint32_t Originfsel;
      uint32_t SampleRate;
-          int ModeIQ; // = MODE_IQ;
 
     clkgpio_t *clkgpio;
     pwmgpio_t *pwmgpio;
     pcmgpio_t *pcmgpio;
-        dsp_t *dsp;
-} iqdmasync;
-typedef struct iqdmasync iqdmasync_t;
+};
+typedef struct amdmasync amdmasync_t;
 
-void iqdmasync_Ciqdmasync(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode);
-void iqdmasync_Diqdmasync(iqdmasync_t **iqdmas);
-void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) ;
-void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas);
-void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
-void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
-void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic);
-void iqdmasync_Setppm(iqdmasync_t **iqdmas, double ppm);
+void amdmasync_Camdmasync(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize);
+void amdmasync_Damdmasync(amdmasync_t **amdma);
+void amdmasync_SetDmaAlgo(amdmasync_t **amdma);
 
-#ifdef __cplusplus
-}
+void amdmasync_SetAmSample(amdmasync_t **amdma, uint32_t Index, float Amplitude);
+void amdmasync_SetAmSamples(amdmasync_t **amdma, float *sample, size_t Size);
+
 #endif
-
-
-#endif /* IQDMASYNC_H_ */

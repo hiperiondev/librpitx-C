@@ -26,18 +26,18 @@
  */
 
 // core
-#include "dma.h"
-#include "dsp.h"
-#include "gpio.h"
+//#include "dma.h"
+//#include "dsp.h"
+//#include "gpio.h"
 #include "util.h"
 
 // modulation
 #include "iqdmasync.h"
-//#include "amdmasync.hpp"
+#include "amdmasync.h"
 //#include "atv.hpp"
 //#include "fmdmasync.hpp"
 //#include "fskburst.hpp"
-//#include "ngfmdmasync.hpp"
+#include "ngfmdmasync.h"
 //#include "ookburst.hpp"
 //#include "phasedmasync.hpp"
 //#include "serialdmasync.hpp"

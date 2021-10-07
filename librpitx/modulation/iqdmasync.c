@@ -69,7 +69,6 @@ void iqdmasync_Ciqdmasync(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t
     }
 
     dsp_Cdsp(&((*iqdmas)->dsp), (*iqdmas)->SampleRate);
-    //mydsp.samplerate = SampleRate;
 
     (*iqdmas)->Originfsel = (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0];
 
@@ -133,8 +132,6 @@ void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
 void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     Index = Index % buffersize;
-    //mydsp.pushsample(sample);
-    //dsp_pushsample(&dsp, *reinterpret_cast<float(&)[2]>(sample));
     dsp_pushsample(&((*iqdmas)->dsp), sample);
     // if(mydsp.frequency>2250) mydsp.frequency=2250;
     // if(mydsp.frequency<1000) mydsp.frequency=1000;
@@ -197,9 +194,8 @@ void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, floa
 
 void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
-    size_t NbWritten = 0;
-    //int OSGranularity=100;
 
+    size_t NbWritten = 0;
     long int start_time;
     long time_difference = 0;
     struct timespec gettime_now;
