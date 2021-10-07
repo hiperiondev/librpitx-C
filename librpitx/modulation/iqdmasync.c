@@ -34,6 +34,7 @@
 #include <math.h>
 
 #include "util.h"
+#include "gpio_enum.h"
 #include "gpio.h"
 #include "dma.h"
 #include "dsp.h"
