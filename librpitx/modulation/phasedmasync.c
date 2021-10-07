@@ -41,10 +41,10 @@
 void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize) {
     *phasedmas = (phasedmasync_t*) malloc(sizeof(struct phasedmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 2, 1); // Number of phase between 2 and 16
-    clkgpio_Cclkgpio(&((*phasedmas)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*phasedmas)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*phasedmas)->pcmgpio));
-    generalgpio_Cgeneralgpio(&((*phasedmas)->gengpio));
+    clkgpio_init(&((*phasedmas)->clkgpio));
+    pwmgpio_init(&((*phasedmas)->pwmgpio));
+    pcmgpio_init(&((*phasedmas)->pcmgpio));
+    generalgpio_init(&((*phasedmas)->gengpio));
 
     (*phasedmas)->SampleRate = SampleRateIn;
     pwmgpio_SetMode(&((*phasedmas)->pwmgpio), pwm1pinrepeat);
@@ -116,9 +116,9 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint3
 void phasedmasync_deinit(phasedmasync_t **phasedmas) {
     pwmgpio_disablepwm(&((*phasedmas)->pwmgpio), 12);
 
-    clkgpio_Dclkgpio(&((*phasedmas)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*phasedmas)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*phasedmas)->pcmgpio));
+    clkgpio_deinit(&((*phasedmas)->clkgpio));
+    pwmgpio_deinit(&((*phasedmas)->pwmgpio));
+    pcmgpio_deinit(&((*phasedmas)->pcmgpio));
     bufferdma_Dbufferdma();
     free(*phasedmas);
 }

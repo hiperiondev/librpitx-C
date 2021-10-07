@@ -87,10 +87,10 @@ uint32_t cbbysample;
 uint32_t registerbysample;
 uint32_t *sampletab;
 
-void dma_Cdma(int Channel, uint32_t CBSize, uint32_t UserMemSize) { // Fixme! Need to check to be 256 Aligned for UserMem
+void dma_init(int Channel, uint32_t CBSize, uint32_t UserMemSize) { // Fixme! Need to check to be 256 Aligned for UserMem
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    dmagpio_Cdmagpio(&dmagpio);
+    dmagpio_init(&dmagpio);
     if (dmagpio == NULL)
         librpitx_dbg_printf(2, "1-dmagpio == NULL\n");
     //Channel DMA is now hardcoded according to Raspi Model (DMA 7 for Pi4, DMA 14 for others)
@@ -151,6 +151,16 @@ void dma_Cdma(int Channel, uint32_t CBSize, uint32_t UserMemSize) { // Fixme! Ne
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
+void dma_deinit(void) {
+    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+
+    dma_stop();
+    mem_unlock(mbox.handle, mbox.mem_ref);
+    mem_free(mbox.handle, mbox.mem_ref);
+
+    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+}
+
 void dma_GetRpiInfo(void) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
@@ -167,16 +177,6 @@ void dma_GetRpiInfo(void) {
     default:
         librpitx_dbg_printf(0, "Unknown Raspberry architecture\n");
     }
-
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
-}
-
-void dma_Ddma(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
-
-    dma_stop();
-    mem_unlock(mbox.handle, mbox.mem_ref);
-    mem_free(mbox.handle, mbox.mem_ref);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
@@ -314,7 +314,7 @@ bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t
 
 ///*************************************** BUFFER DMA ********************************************************
 void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample) {
-    dma_Cdma(Channel, tbuffersize * tcbbysample, tbuffersize * tregisterbysample);
+    dma_init(Channel, tbuffersize * tcbbysample, tbuffersize * tregisterbysample);
 
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
@@ -333,7 +333,7 @@ void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysampl
 }
 
 void bufferdma_Dbufferdma(void) {
-    dma_Ddma();
+    dma_deinit();
 }
 
 void bufferdma_SetDmaAlgo(void) {

@@ -97,15 +97,15 @@ struct padgpio {
 };
 typedef struct padgpio padgpio_t;
 
-    void gpio_Cgpio(gpio_t **gpio, uint32_t base, uint32_t len);
-    void gpio_Dgpio(gpio_t **gpio);
+    void gpio_init(gpio_t **gpio, uint32_t base, uint32_t len);
+    void gpio_deinit(gpio_t **gpio);
 uint32_t gpio_get_hwbase(void);
 uint32_t gpio_GetPeripheralBase(gpio_t **gpio);
 
-    void dmagpio_Cdmagpio(dmagpio_t **dmagpio);
+    void dmagpio_init(dmagpio_t **dmagpio);
 
-    void clkgpio_Cclkgpio(clkgpio_t **clkgpio);
-    void clkgpio_Dclkgpio(clkgpio_t **clkgpio);
+    void clkgpio_init(clkgpio_t **clkgpio);
+    void clkgpio_deinit(clkgpio_t **clkgpio);
      int clkgpio_SetPllNumber(clkgpio_t **clkgpio, int PllNo, int MashType);
 uint64_t clkgpio_GetPllFrequency(clkgpio_t **clkgpio, int PllNo);
      int clkgpio_SetClkDivFrac(clkgpio_t **clkgpio, uint32_t Div, uint32_t Frac);
@@ -125,13 +125,13 @@ uint32_t clkgpio_GetMasterFrac(clkgpio_t **clkgpio, double Frequency);
     void clkgpio_Setppm(clkgpio_t **clkgpio, double ppm);
     void clkgpio_SetppmFromNTP(clkgpio_t **clkgpio);
 
-    void generalgpio_Cgeneralgpio(generalgpio_t **generalgpio);
-    void generalgpio_Dgeneralgpio(generalgpio_t **generalgpio);
+    void generalgpio_init(generalgpio_t **generalgpio);
+    void generalgpio_deinit(generalgpio_t **generalgpio);
      int generalgpio_setmode(generalgpio_t **generalgpio, uint32_t gpio, uint32_t mode);
      int generalgpio_setpulloff(generalgpio_t **generalgpio, uint32_t gpio);
 
-    void pwmgpio_Cpwmgpio(pwmgpio_t **pwmgpio);
-    void pwmgpio_Dpwmgpio(pwmgpio_t **pwmgpio);
+    void pwmgpio_init(pwmgpio_t **pwmgpio);
+    void pwmgpio_deinit(pwmgpio_t **pwmgpio);
     void pwmgpio_enablepwm(pwmgpio_t **pwmgpio, int gpio, int PwmNumber);
     void pwmgpio_disablepwm(pwmgpio_t **pwmgpio, int gpio);
      int pwmgpio_SetPllNumber(pwmgpio_t **pwmgpio, int PllNo, int MashType);
@@ -140,16 +140,16 @@ uint64_t pwmgpio_GetPllFrequency(pwmgpio_t **pwmgpio, int PllNo);
     void pwmgpio_SetMode(pwmgpio_t **pwmgpio, int Mode);
      int pwmgpio_SetPrediv(pwmgpio_t **pwmgpio, int predivisor);
 
-    void pcmgpio_Cpcmgpio(pcmgpio_t **pcmgpio);
-    void pcmgpio_Dpcmgpio(pcmgpio_t **pcmgpio);
+    void pcmgpio_init(pcmgpio_t **pcmgpio);
+    void pcmgpio_deinit(pcmgpio_t **pcmgpio);
      int pcmgpio_SetPllNumber(pcmgpio_t **pcmgpio, int PllNo, int MashType);
 uint64_t pcmgpio_GetPllFrequency(pcmgpio_t **pcmgpio, int PllNo);
      int pcmgpio_ComputePrediv(pcmgpio_t **pcmgpio, uint64_t Frequency);
      int pcmgpio_SetFrequency(pcmgpio_t **pcmgpio, uint64_t Frequency);
      int pcmgpio_SetPrediv(pcmgpio_t **pcmgpio, int predivisor);
 
-    void padgpio_Cpadgpio(padgpio_t **padgpio);
-    void padgpio_Dpadgpio(padgpio_t **padgpio);
+    void padgpio_init(padgpio_t **padgpio);
+    void padgpio_deinit(padgpio_t **padgpio);
      int padgpio_setlevel(gpio_t **gpio, int level);
 
 #ifdef __cplusplus

@@ -56,8 +56,8 @@ extern uint32_t cbbysample;
 extern uint32_t registerbysample;
 extern uint32_t *sampletab;
 
-    void dma_Cdma(int Channel, uint32_t CBSize, uint32_t UserMemSize);
-    void dma_Ddma(void);
+    void dma_init(int Channel, uint32_t CBSize, uint32_t UserMemSize);
+    void dma_deinit(void);
     void dma_GetRpiInfo(void);
 uint32_t dma_mem_virt_to_phys(volatile void *virt);
 uint32_t dma_mem_phys_to_virt(volatile uint32_t phys);

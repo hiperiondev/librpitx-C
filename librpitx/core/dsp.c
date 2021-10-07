@@ -32,7 +32,7 @@
 #include "dsp.h"
 #include "util.h"
 
-void dsp_Cdsp(dsp_t **dsp, uint32_t srate) {
+void dsp_init(dsp_t **dsp, uint32_t srate) {
 	*dsp = (dsp_t*) malloc(sizeof(dsp));
 	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 	(*dsp)->prev_phase = 0;
@@ -43,8 +43,8 @@ void dsp_Cdsp(dsp_t **dsp, uint32_t srate) {
 	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void dsp_Ddsp(dsp_t **dsp) {
-
+void dsp_deinit(dsp_t **dsp) {
+    free(*dsp);
 }
 
 #define ln(x) (log(x)/log(2.718281828459045235f))

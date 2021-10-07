@@ -38,9 +38,9 @@
 void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize) {
     *amdma = (amdmasync_t*) malloc(sizeof(struct amdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 3, 2);
-    clkgpio_Cclkgpio(&((*amdma)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*amdma)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*amdma)->pcmgpio));
+    clkgpio_init(&((*amdma)->clkgpio));
+    pwmgpio_init(&((*amdma)->pwmgpio));
+    pcmgpio_init(&((*amdma)->pcmgpio));
 
     (*amdma)->SampleRate = SR;
     (*amdma)->tunefreq = TuneFrequency;
@@ -59,21 +59,21 @@ void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, in
     }
 
     padgpio_t *pad;
-    padgpio_Cpadgpio(&pad);
+    padgpio_init(&pad);
     (*amdma)->Originfsel = (*pad).h_gpio->gpioreg[PADS_GPIO_0];
     amdmasync_SetDmaAlgo(amdma);
-    padgpio_Dpadgpio(&pad);
+    padgpio_deinit(&pad);
 }
 
 void amdmasync_deinit(amdmasync_t **amdma) {
     clkgpio_disableclk(&((*amdma)->clkgpio), 4);
     padgpio_t *pad;
-    padgpio_Cpadgpio(&pad);
+    padgpio_init(&pad);
     (*pad).h_gpio->gpioreg[PADS_GPIO_0] = (*amdma)->Originfsel;
-    clkgpio_Dclkgpio(&((*amdma)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*amdma)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*amdma)->pcmgpio));
-    padgpio_Dpadgpio(&pad);
+    clkgpio_deinit(&((*amdma)->clkgpio));
+    pwmgpio_deinit(&((*amdma)->pwmgpio));
+    pcmgpio_deinit(&((*amdma)->pcmgpio));
+    padgpio_deinit(&pad);
     free(*amdma);
 }
 

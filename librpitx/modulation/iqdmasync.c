@@ -45,9 +45,9 @@ void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, i
 
     *iqdmas = (iqdmasync_t*) malloc(sizeof(struct iqdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 4, 3);
-    clkgpio_Cclkgpio(&((*iqdmas)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*iqdmas)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*iqdmas)->pcmgpio));
+    clkgpio_init(&((*iqdmas)->clkgpio));
+    pwmgpio_init(&((*iqdmas)->pwmgpio));
+    pcmgpio_init(&((*iqdmas)->pcmgpio));
 // Usermem :
 // FRAC frequency
 // PAD Amplitude
@@ -69,7 +69,7 @@ void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, i
         pcmgpio_SetFrequency(&((*iqdmas)->pcmgpio), (*iqdmas)->SampleRate);
     }
 
-    dsp_Cdsp(&((*iqdmas)->dsp), (*iqdmas)->SampleRate);
+    dsp_init(&((*iqdmas)->dsp), (*iqdmas)->SampleRate);
 
     (*iqdmas)->Originfsel = (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0];
 
@@ -87,9 +87,9 @@ void iqdmasync_deinit(iqdmasync_t **iqdmas) {
     (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0] = (*iqdmas)->Originfsel;
     clkgpio_disableclk(&((*iqdmas)->clkgpio), 4);
 
-    clkgpio_Dclkgpio(&((*iqdmas)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*iqdmas)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*iqdmas)->pcmgpio));
+    clkgpio_deinit(&((*iqdmas)->clkgpio));
+    pwmgpio_deinit(&((*iqdmas)->pwmgpio));
+    pcmgpio_deinit(&((*iqdmas)->pcmgpio));
     free(*iqdmas);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);

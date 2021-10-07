@@ -37,9 +37,9 @@
 void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm) {
     *ngfm = (ngfmdmasync_t*) malloc(sizeof(struct ngfmdmasync));
     bufferdma_Cbufferdma(Channel, FifoSize, 2, 1);
-    clkgpio_Cclkgpio(&((*ngfm)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*ngfm)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*ngfm)->pcmgpio));
+    clkgpio_init(&((*ngfm)->clkgpio));
+    pwmgpio_init(&((*ngfm)->pwmgpio));
+    pcmgpio_init(&((*ngfm)->pcmgpio));
 
     bufferdma_Cbufferdma(Channel, FifoSize, 2, 1);
 
@@ -69,9 +69,9 @@ void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR,
 void ngfmdmasync_deinit(ngfmdmasync_t **ngfm) {
     clkgpio_disableclk(&((*ngfm)->clkgpio), 4);
 
-    clkgpio_Dclkgpio(&((*ngfm)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*ngfm)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*ngfm)->pcmgpio));
+    clkgpio_deinit(&((*ngfm)->clkgpio));
+    pwmgpio_deinit(&((*ngfm)->pwmgpio));
+    pcmgpio_deinit(&((*ngfm)->pcmgpio));
     free(*ngfm);
 }
 

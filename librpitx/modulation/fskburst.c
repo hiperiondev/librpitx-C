@@ -38,9 +38,9 @@ void fskburst_init(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRat
         float RatioRamp) {
     *fskbrst = (fskburst_t*) malloc(sizeof(struct fskburst));
     bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
-    clkgpio_Cclkgpio(&((*fskbrst)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*fskbrst)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*fskbrst)->pcmgpio));
+    clkgpio_init(&((*fskbrst)->clkgpio));
+    pwmgpio_init(&((*fskbrst)->pwmgpio));
+    pcmgpio_init(&((*fskbrst)->pcmgpio));
     (*fskbrst)->SR_upsample = upsample;
     (*fskbrst)->Ramp = 0.0;
     (*fskbrst)->freqdeviation = Deviation;
@@ -68,9 +68,9 @@ void fskburst_init(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRat
 }
 
 void fskburst_deinit(fskburst_t **fskbrst) {
-    clkgpio_Dclkgpio(&((*fskbrst)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*fskbrst)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*fskbrst)->pcmgpio));
+    clkgpio_deinit(&((*fskbrst)->clkgpio));
+    pwmgpio_deinit(&((*fskbrst)->pwmgpio));
+    pcmgpio_deinit(&((*fskbrst)->pcmgpio));
     free(*fskbrst);
 }
 

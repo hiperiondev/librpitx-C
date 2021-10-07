@@ -43,8 +43,8 @@ struct dsp {
 };
 typedef struct dsp dsp_t;
 
-void dsp_Cdsp(dsp_t **dsp, uint32_t samplerate);
-void dsp_Ddsp(dsp_t **dsp);
+void dsp_init(dsp_t **dsp, uint32_t samplerate);
+void dsp_deinit(dsp_t **dsp);
 void dsp_pushsample(dsp_t **dsp, float _Complex sample);
 
 #ifdef __cplusplus

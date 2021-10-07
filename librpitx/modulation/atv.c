@@ -43,10 +43,10 @@
 void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines) {
 
     *atvl = (atv_t*) malloc(sizeof(struct atv));
-    dma_Cdma(Channel, CB_ATV, Lines * 52 + 3);
-    clkgpio_Cclkgpio(&((*atvl)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*atvl)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*atvl)->pcmgpio));
+    dma_init(Channel, CB_ATV, Lines * 52 + 3);
+    clkgpio_init(&((*atvl)->clkgpio));
+    pwmgpio_init(&((*atvl)->pwmgpio));
+    pcmgpio_init(&((*atvl)->pcmgpio));
 // Need 2 more bytes for 0 and 1
 // Need 6 CB more for sync, if so as 2CBby sample : 3
 
@@ -74,7 +74,7 @@ void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
     usermem[(usermemsize - 3)] = (0x5A << 24) + (4 & 0x7) + (1 << 4) + (0 << 3); // Amp 4
 
     atv_SetDmaAlgo(atvl);
-    padgpio_Dpadgpio(&pad);
+    padgpio_deinit(&pad);
 }
 
 void atv_deinit(atv_t **atvl) {
@@ -82,10 +82,10 @@ void atv_deinit(atv_t **atvl) {
     padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
     pad->h_gpio->gpioreg[PADS_GPIO_0] = (*atvl)->Originfsel;
 
-    clkgpio_Dclkgpio(&((*atvl)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*atvl)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*atvl)->pcmgpio));
-    padgpio_Dpadgpio(&pad);
+    clkgpio_deinit(&((*atvl)->clkgpio));
+    pwmgpio_deinit(&((*atvl)->pwmgpio));
+    pcmgpio_deinit(&((*atvl)->pcmgpio));
+    padgpio_deinit(&pad);
     free(*atvl);
 }
 

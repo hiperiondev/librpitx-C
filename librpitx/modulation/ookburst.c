@@ -37,9 +37,9 @@
 void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
     *ookbrst = (ookburst_t*) malloc(sizeof(struct ookburst));
     bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
-    clkgpio_Cclkgpio(&((*ookbrst)->clkgpio));
-    pwmgpio_Cpwmgpio(&((*ookbrst)->pwmgpio));
-    pcmgpio_Cpcmgpio(&((*ookbrst)->pcmgpio));
+    clkgpio_init(&((*ookbrst)->clkgpio));
+    pwmgpio_init(&((*ookbrst)->pwmgpio));
+    pcmgpio_init(&((*ookbrst)->pcmgpio));
     (*ookbrst)->SR_upsample = upsample;
     (*ookbrst)->Ramp = 0.0;
 
@@ -63,9 +63,9 @@ void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRat
 }
 
 void ookburst_deinit(ookburst_t **ookburst) {
-    clkgpio_Dclkgpio(&((*ookburst)->clkgpio));
-    pwmgpio_Dpwmgpio(&((*ookburst)->pwmgpio));
-    pcmgpio_Dpcmgpio(&((*ookburst)->pcmgpio));
+    clkgpio_deinit(&((*ookburst)->clkgpio));
+    pwmgpio_deinit(&((*ookburst)->pwmgpio));
+    pcmgpio_deinit(&((*ookburst)->pcmgpio));
     free(*ookburst);
 }
 
