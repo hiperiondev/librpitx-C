@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -36,7 +36,7 @@
 
 void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
     *ookbrst = (ookburst_t*) malloc(sizeof(struct ookburst));
-    bufferdma_Cbufferdma(Channel, FifoSize * upsample + 2, 2, 1);
+    bufferdma_init(Channel, FifoSize * upsample + 2, 2, 1);
     clkgpio_init(&((*ookbrst)->clkgpio));
     pwmgpio_init(&((*ookbrst)->pwmgpio));
     pcmgpio_init(&((*ookbrst)->pcmgpio));

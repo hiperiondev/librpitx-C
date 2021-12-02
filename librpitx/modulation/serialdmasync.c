@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -35,7 +35,7 @@
 
 void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput) {
     *serialdmas = (serialdmasync_t*) malloc(sizeof(struct serialdmasync));
-    bufferdma_Cbufferdma(Channel, FifoSize, 1, 1);
+    bufferdma_init(Channel, FifoSize, 1, 1);
     clkgpio_init(&((*serialdmas)->clkgpio));
     pwmgpio_init(&((*serialdmas)->pwmgpio));
 
@@ -65,7 +65,7 @@ void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int C
 void serialdmasync_deinit(serialdmasync_t **serialdmas) {
     clkgpio_deinit(&((*serialdmas)->clkgpio));
     pwmgpio_deinit(&((*serialdmas)->pwmgpio));
-    bufferdma_Dbufferdma();
+    bufferdma_deinit();
     free(*serialdmas);
 }
 

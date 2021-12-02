@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -40,7 +40,7 @@
 //Stable tune for this pwm mode is up to 90MHZ
 void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize) {
     *phasedmas = (phasedmasync_t*) malloc(sizeof(struct phasedmasync));
-    bufferdma_Cbufferdma(Channel, FifoSize, 2, 1); // Number of phase between 2 and 16
+    bufferdma_init(Channel, FifoSize, 2, 1); // Number of phase between 2 and 16
     clkgpio_init(&((*phasedmas)->clkgpio));
     pwmgpio_init(&((*phasedmas)->pwmgpio));
     pcmgpio_init(&((*phasedmas)->pcmgpio));
@@ -119,7 +119,7 @@ void phasedmasync_deinit(phasedmasync_t **phasedmas) {
     clkgpio_deinit(&((*phasedmas)->clkgpio));
     pwmgpio_deinit(&((*phasedmas)->pwmgpio));
     pcmgpio_deinit(&((*phasedmas)->pcmgpio));
-    bufferdma_Dbufferdma();
+    bufferdma_deinit();
     free(*phasedmas);
 }
 

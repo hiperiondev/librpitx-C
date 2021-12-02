@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -44,7 +44,7 @@ void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, i
     librpitx_dbg_printf(2, "> func: (iqdmasync_iqdmasync) %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *iqdmas = (iqdmasync_t*) malloc(sizeof(struct iqdmasync));
-    bufferdma_Cbufferdma(Channel, FifoSize, 4, 3);
+    bufferdma_init(Channel, FifoSize, 4, 3);
     clkgpio_init(&((*iqdmas)->clkgpio));
     pwmgpio_init(&((*iqdmas)->pwmgpio));
     pcmgpio_init(&((*iqdmas)->pcmgpio));
@@ -97,12 +97,14 @@ void iqdmasync_deinit(iqdmasync_t **iqdmas) {
 
 void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+
     clkgpio_SetPhase(&((*iqdmas)->clkgpio), inversed);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
 
@@ -133,6 +135,7 @@ void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
 
 void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+
     Index = Index % buffersize;
     dsp_pushsample(&((*iqdmas)->dsp), sample);
     // if(mydsp.frequency>2250) mydsp.frequency=2250;
@@ -163,6 +166,7 @@ void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex 
 
 void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+
     Index = Index % buffersize;
 
     //sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_GetMasterFrac((*iqdmas)->clkgpio, sample.real() / Harmonic); //Frequency

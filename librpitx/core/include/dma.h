@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -69,8 +69,8 @@ uint32_t dma_mem_phys_to_virt(volatile uint32_t phys);
     bool dma_SetCB(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uint32_t repeat);
     bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t repeat);
 
-    void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample);
-    void bufferdma_Dbufferdma(void);
+    void bufferdma_init(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample);
+    void bufferdma_deinit(void);
     void bufferdma_SetDmaAlgo(void);
      int bufferdma_GetBufferAvailable(void);
      int bufferdma_GetUserMemIndex(void);

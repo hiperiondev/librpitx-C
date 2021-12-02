@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -37,7 +37,7 @@
 
 void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize) {
     *amdma = (amdmasync_t*) malloc(sizeof(struct amdmasync));
-    bufferdma_Cbufferdma(Channel, FifoSize, 3, 2);
+    bufferdma_init(Channel, FifoSize, 3, 2);
     clkgpio_init(&((*amdma)->clkgpio));
     pwmgpio_init(&((*amdma)->pwmgpio));
     pcmgpio_init(&((*amdma)->pcmgpio));

@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -36,12 +36,12 @@
 
 void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm) {
     *ngfm = (ngfmdmasync_t*) malloc(sizeof(struct ngfmdmasync));
-    bufferdma_Cbufferdma(Channel, FifoSize, 2, 1);
+    bufferdma_init(Channel, FifoSize, 2, 1);
     clkgpio_init(&((*ngfm)->clkgpio));
     pwmgpio_init(&((*ngfm)->pwmgpio));
     pcmgpio_init(&((*ngfm)->pcmgpio));
 
-    bufferdma_Cbufferdma(Channel, FifoSize, 2, 1);
+    bufferdma_init(Channel, FifoSize, 2, 1);
 
     (*ngfm)->SampleRate = SR;
     (*ngfm)->tunefreq = TuneFrequency;

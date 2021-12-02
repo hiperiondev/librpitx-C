@@ -1,6 +1,6 @@
 /*
  * Copyright 2021 Emiliano Gonzalez (egonzalez . hiperion @ gmail . com))
- * * Project Site:  *
+ * * Project Site: https://github.com/hiperiondev/librpitx-C *
  *
  * This is based on other projects:
  *    librpitx (https://github.com/F5OEO/librpitx)
@@ -41,13 +41,11 @@
 
 #define BUS_TO_PHYS(x) ((x)&~0xC0000000)
 
-//class dma
-//protected:
 struct {
-         int handle;         // From mbox_open()
-    unsigned mem_ref;   // From mem_alloc()
-    unsigned bus_addr;  // From mem_lock()
-     uint8_t *virt_addr; // From mapmem()
+         int handle;      // From mbox_open()
+    unsigned mem_ref;     // From mem_alloc()
+    unsigned bus_addr;    // From mem_lock()
+     uint8_t *virt_addr;  // From mapmem()
 } mbox;
 
 typedef struct {
@@ -59,20 +57,15 @@ page_map_t *page_map;
 
 uint8_t *virtbase;
     int NumPages = 0;
-    int channel; // DMA Channel
-//dmagpio dma_reg;
+    int channel;          // DMA Channel
 
-uint32_t mem_flag; // Cache or not depending on Rpi1 or 2/3
+uint32_t mem_flag;        // Cache or not depending on Rpi1 or 2/3
 uint32_t dram_phys_base;
 
-//class bufferdma: public dma
-//protected:
 uint32_t current_sample;
 uint32_t last_sample;
 uint32_t sample_available;
 
-//class dma
-//public:
 dmagpio_t *dmagpio;
  dma_cb_t *cbarray;
  uint32_t cbsize;
@@ -80,8 +73,6 @@ dmagpio_t *dmagpio;
  uint32_t usermemsize;
      bool Started = false;
 
-//class bufferdma: public dma
-//public:
 uint32_t buffersize;
 uint32_t cbbysample;
 uint32_t registerbysample;
@@ -198,7 +189,7 @@ uint32_t dma_mem_phys_to_virt(volatile uint32_t phys) {
     //MBOX METHOD
     uint32_t offset = phys - mbox.bus_addr;
     uint32_t result = (size_t) ((uint8_t*) mbox.virt_addr + offset);
-    //printf("MemtoVirt:Offset=%lx phys=%lx -> %lx\n",offset,phys,result);
+    //librpitx_dbg_printf(2, "MemtoVirt:Offset=%lx phys=%lx -> %lx\n",offset,phys,result);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
@@ -313,7 +304,7 @@ bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t
 }
 
 ///*************************************** BUFFER DMA ********************************************************
-void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample) {
+void bufferdma_init(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample) {
     dma_init(Channel, tbuffersize * tcbbysample, tbuffersize * tregisterbysample);
 
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
@@ -332,7 +323,7 @@ void bufferdma_Cbufferdma(int Channel, uint32_t tbuffersize, uint32_t tcbbysampl
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void bufferdma_Dbufferdma(void) {
+void bufferdma_deinit(void) {
     dma_deinit();
 }
 
@@ -353,18 +344,18 @@ int bufferdma_GetBufferAvailable(void) {
             librpitx_dbg_printf(1, "DMA WEIRD STATE\n");
             current_sample = 0;
         }
-        //dbg_printf(1,"CurrentCB=%d\n",current_sample);
+        //librpitx_dbg_printf(1,"CurrentCB=%d\n",current_sample);
         diffsample = current_sample - last_sample;
         if (diffsample < 0)
             diffsample += buffersize;
 
-        //dbg_printf(1,"cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
+        //librpitx_dbg_printf(1,"cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
     } else {
         //last_sample=buffersize-1;
         diffsample = buffersize;
         current_sample = 0;
-        //dbg_printf(1,"Warning DMA stopped \n");
-        //dbg_printf(1,"S:cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
+        //librpitx_dbg_printf(1,"Warning DMA stopped \n");
+        //librpitx_dbg_printf(1,"S:cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
     }
 
     //
@@ -383,7 +374,7 @@ int bufferdma_GetUserMemIndex(void) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     int IndexAvailable = -1;
-    //dbg_printf(1,"Avail=%d\n",GetBufferAvailable());
+    //librpitx_dbg_printf(1,"Avail=%d\n",GetBufferAvailable());
     if (bufferdma_GetBufferAvailable() > 0) {
         IndexAvailable = last_sample + 1;
         if (IndexAvailable >= (int) buffersize)
