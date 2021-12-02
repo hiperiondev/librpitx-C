@@ -106,7 +106,7 @@ void dma_init(int Channel, uint32_t CBSize, uint32_t UserMemSize) { // Fixme! Ne
     cbsize = CBSize;
     usermemsize = UserMemSize;
 
-    dma_GetRpiInfo(); // Fill mem_flag and dram_phys_base
+    dma_get_rpi_info(); // Fill mem_flag and dram_phys_base
 
     uint32_t MemoryRequired = CBSize * sizeof(dma_cb_t) + UserMemSize * sizeof(uint32_t);
     int NumPages = (MemoryRequired / PAGE_SIZE) + 1;
@@ -152,7 +152,7 @@ void dma_deinit(void) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void dma_GetRpiInfo(void) {
+void dma_get_rpi_info(void) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dram_phys_base = bcm_host_get_sdram_address();
@@ -261,7 +261,7 @@ bool dma_isunderflow(void) {
     return ((dmagpio->h_gpio->gpioreg[DMA_CS + channel * 0x40] & DMA_CS_INT) > 0);
 }
 
-bool dma_SetCB(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uint32_t repeat) {
+bool dma_set_cb(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uint32_t repeat) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     cbp->info = dma_flag;
@@ -277,7 +277,7 @@ bool dma_SetCB(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uin
 }
 
 
-bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t repeat) {
+bool dma_set_easy_cb(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t repeat) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     uint32_t flag = BCM2708_DMA_NO_WIDE_BURSTS | BCM2708_DMA_WAIT_RESP;
@@ -296,7 +296,7 @@ bool dma_SetEasyCB(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t
         flag |= BCM2708_DMA_D_DREQ | BCM2708_DMA_PER_MAP(DREQ_PCM_TX);
         break;
     }
-    dma_SetCB(cbp, flag, src, dst, repeat);
+    dma_set_cb(cbp, flag, src, dst, repeat);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
@@ -327,7 +327,7 @@ void bufferdma_deinit(void) {
     dma_deinit();
 }
 
-void bufferdma_SetDmaAlgo(void) {
+void bufferdma_set_dma_algo(void) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }

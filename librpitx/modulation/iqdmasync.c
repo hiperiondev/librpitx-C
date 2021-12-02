@@ -55,25 +55,25 @@ void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, i
     (*iqdmas)->ModeIQ = Mode;
     (*iqdmas)->SampleRate = SR;
     (*iqdmas)->tunefreq = TuneFrequency;
-    clkgpio_SetAdvancedPllMode(&((*iqdmas)->clkgpio), true);
-    clkgpio_SetCenterFrequency(&((*iqdmas)->clkgpio), TuneFrequency, (*iqdmas)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
-    clkgpio_SetFrequency(&((*iqdmas)->clkgpio), 0);
+    clkgpio_set_advanced_pll_mode(&((*iqdmas)->clkgpio), true);
+    clkgpio_set_center_frequency(&((*iqdmas)->clkgpio), TuneFrequency, (*iqdmas)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
+    clkgpio_set_frequency(&((*iqdmas)->clkgpio), 0);
     clkgpio_enableclk(&((*iqdmas)->clkgpio), 4);
     (*iqdmas)->syncwithpwm = false;
 
     if ((*iqdmas)->syncwithpwm) {
-        pwmgpio_SetPllNumber(&((*iqdmas)->pwmgpio), clk_plld, 1);
-        pwmgpio_SetFrequency(&((*iqdmas)->pwmgpio), (*iqdmas)->SampleRate);
+        pwmgpio_set_pll_number(&((*iqdmas)->pwmgpio), clk_plld, 1);
+        pwmgpio_set_frequency(&((*iqdmas)->pwmgpio), (*iqdmas)->SampleRate);
     } else {
-        pcmgpio_SetPllNumber(&((*iqdmas)->pcmgpio), clk_plld, 1);
-        pcmgpio_SetFrequency(&((*iqdmas)->pcmgpio), (*iqdmas)->SampleRate);
+        pcmgpio_set_pll_number(&((*iqdmas)->pcmgpio), clk_plld, 1);
+        pcmgpio_set_frequency(&((*iqdmas)->pcmgpio), (*iqdmas)->SampleRate);
     }
 
     dsp_init(&((*iqdmas)->dsp), (*iqdmas)->SampleRate);
 
     (*iqdmas)->Originfsel = (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0];
 
-    iqdmasync_SetDmaAlgo(iqdmas);
+    iqdmasync_set_dma_algo(iqdmas);
 
     // Note : Spurious are at +/-(19.2MHZ/2^20)*Div*N : (N=1,2,3...) So we need to have a big div to spurious away BUT
     // Spurious are ALSO at +/-(19.2MHZ/2^20)*(2^20-Div)*N
@@ -95,33 +95,33 @@ void iqdmasync_deinit(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) {
+void iqdmasync_set_phase(iqdmasync_t **iqdmas, bool inversed) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    clkgpio_SetPhase(&((*iqdmas)->clkgpio), inversed);
+    clkgpio_set_phase(&((*iqdmas)->clkgpio), inversed);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
+void iqdmasync_set_dma_algo(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
 
-        dma_SetEasyCB(cbp, samplecnt * registerbysample + 1, dma_pad, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample + 1, dma_pad, 1);
         cbp++;
 
         // @2 Write a frequency sample : Order of DMA CS influence maximum rate : here 0,2,1 is the best : why !!!!!!
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, dma_pllc_frac, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, dma_pllc_frac, 1);
         cbp++;
 
         // @1
         // Set Amplitude  to FSEL for amplitude=0
-        dma_SetEasyCB(cbp, samplecnt * registerbysample + 2, dma_fsel, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample + 2, dma_fsel, 1);
         cbp++;
 
         // @3 Delay
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, (*iqdmas)->syncwithpwm ? dma_pwm : dma_pcm, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, (*iqdmas)->syncwithpwm ? dma_pwm : dma_pcm, 1);
         // dbg_printf(1,"cbp : sample %x src %x dest %x next %x\n",samplecnt,cbp->src,cbp->dst,cbp->next);
         cbp++;
 
@@ -133,14 +133,14 @@ void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
+void iqdmasync_set_iq_sample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     Index = Index % buffersize;
     dsp_pushsample(&((*iqdmas)->dsp), sample);
     // if(mydsp.frequency>2250) mydsp.frequency=2250;
     // if(mydsp.frequency<1000) mydsp.frequency=1000;
-    sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*iqdmas)->clkgpio), (*iqdmas)->dsp->frequency / Harmonic);  //Frequency
+    sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_get_master_frac(&((*iqdmas)->clkgpio), (*iqdmas)->dsp->frequency / Harmonic);  //Frequency
     int IntAmplitude = (int) ((*iqdmas)->dsp->amplitude * 8.0) - 1; //Fixme 1e4 seems to work with SSB but should be an issue with classical IQ file
 
     int IntAmplitudePAD = IntAmplitude;
@@ -164,7 +164,7 @@ void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
+void iqdmasync_set_freq_ampl_sample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     Index = Index % buffersize;
@@ -172,7 +172,7 @@ void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, floa
     //sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_GetMasterFrac((*iqdmas)->clkgpio, sample.real() / Harmonic); //Frequency
     //int IntAmplitude = (int) roundf(sample.imag()) - 1; //0->8 become -1->7
 
-    sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*iqdmas)->clkgpio), creal(sample) / Harmonic); //Frequency
+    sampletab[Index * registerbysample] = (0x5A << 24) | clkgpio_get_master_frac(&((*iqdmas)->clkgpio), creal(sample) / Harmonic); //Frequency
     int IntAmplitude = (int) roundf(cimag(sample)) - 1; //0->8 become -1->7
 
     int IntAmplitudePAD = IntAmplitude;
@@ -198,7 +198,7 @@ void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, floa
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic) {
+void iqdmasync_set_iq_samples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     size_t NbWritten = 0;
@@ -239,19 +239,19 @@ void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t
         //printf("Available after=%d Timetosleep %d To Write %d\n",Available,TimeToSleep,ToWrite);
         if ((*iqdmas)->ModeIQ == MODE_IQ) {
             for (int i = 0; i < ToWrite; i++) {
-                iqdmasync_SetIQSample(iqdmas, Index + i, sample[NbWritten++], Harmonic);
+                iqdmasync_set_iq_sample(iqdmas, Index + i, sample[NbWritten++], Harmonic);
             }
         }
         if ((*iqdmas)->ModeIQ == MODE_FREQ_A) {
             for (int i = 0; i < ToWrite; i++) {
-                iqdmasync_SetFreqAmplitudeSample(iqdmas, Index + i, sample[NbWritten++], Harmonic);
+                iqdmasync_set_freq_ampl_sample(iqdmas, Index + i, sample[NbWritten++], Harmonic);
             }
         }
     }
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void iqdmasync_Setppm(iqdmasync_t **iqdmas, double ppm) {
-    clkgpio_Setppm(&((*iqdmas)->clkgpio), ppm);
+void iqdmasync_set_ppm(iqdmasync_t **iqdmas, double ppm) {
+    clkgpio_set_ppm(&((*iqdmas)->clkgpio), ppm);
 }
 

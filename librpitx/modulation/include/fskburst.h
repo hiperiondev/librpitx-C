@@ -50,8 +50,8 @@ typedef struct fskburst fskburst_t;
 
 void fskburst_init(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
 void fskburst_deinit(fskburst_t **fskbrst);
-void fskburst_SetDmaAlgo(fskburst_t **fskbrst);
-void fskburst_SetSymbols(fskburst_t **fskbrst, unsigned char *Symbols, uint32_t Size);
+void fskburst_set_dma_algo(fskburst_t **fskbrst);
+void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *Symbols, uint32_t Size);
 
 
 /*

@@ -56,12 +56,12 @@ typedef struct iqdmasync iqdmasync_t;
 
 void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, int Mode);
 void iqdmasync_deinit(iqdmasync_t **iqdmas);
-void iqdmasync_SetPhase(iqdmasync_t **iqdmas, bool inversed) ;
-void iqdmasync_SetDmaAlgo(iqdmasync_t **iqdmas);
-void iqdmasync_SetIQSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
-void iqdmasync_SetFreqAmplitudeSample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
-void iqdmasync_SetIQSamples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic);
-void iqdmasync_Setppm(iqdmasync_t **iqdmas, double ppm);
+void iqdmasync_set_phase(iqdmasync_t **iqdmas, bool inversed) ;
+void iqdmasync_set_dma_algo(iqdmasync_t **iqdmas);
+void iqdmasync_set_iq_sample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
+void iqdmasync_set_freq_ampl_sample(iqdmasync_t **iqdmas, uint32_t Index, float _Complex sample, int Harmonic);
+void iqdmasync_set_iq_samples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int Harmonic);
+void iqdmasync_set_ppm(iqdmasync_t **iqdmas, double ppm);
 
 #ifdef __cplusplus
 }

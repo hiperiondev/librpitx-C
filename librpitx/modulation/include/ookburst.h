@@ -64,12 +64,12 @@ typedef struct SampleOOKTiming {
 
 void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
 void ookburst_deinit(ookburst_t **ookburst);
-void ookburst_SetDmaAlgo(ookburst_t **ookburst);
-void ookburst_SetSymbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t Size);
+void ookburst_set_dma_algo(ookburst_t **ookburst);
+void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t Size);
 
-void ookbursttiming_Cookbursttiming(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration);
-void ookbursttiming_Dookbursttiming(ookbursttiming_t **ookbursttm);
-void ookbursttiming_SendMessage(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *TabSymbols, size_t Size);
+void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration);
+void ookbursttiming_deinit(ookbursttiming_t **ookbursttm);
+void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *TabSymbols, size_t Size);
 
 #ifdef __cplusplus
 }

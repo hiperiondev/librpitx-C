@@ -35,15 +35,15 @@
 
 void fmdmasync_init(int Channel, uint32_t FifoSize) {
     dma_init(Channel, FifoSize * 2, FifoSize);
-    fmdmasync_SetDmaAlgo();
-    fmdmasync_FillMemory(12, 1472);
+    fmdmasync_set_dma_algo();
+    fmdmasync_fill_memory(12, 1472);
 }
 
 void fmdmasync_deinit(void) {
     dma_deinit();
 }
 
-void fmdmasync_SetDmaAlgo(void) {
+void fmdmasync_set_dma_algo(void) {
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < cbsize / 2; samplecnt++) { //cbsize/2 because we have 2 CB by sample
 
@@ -75,7 +75,7 @@ void fmdmasync_SetDmaAlgo(void) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void fmdmasync_FillMemory(uint32_t FreqDivider, uint32_t FreqFractionnal) {
+void fmdmasync_fill_memory(uint32_t FreqDivider, uint32_t FreqFractionnal) {
 
     for (uint32_t samplecnt = 0; samplecnt < usermemsize; samplecnt++) {
         usermem[samplecnt] = 0x5A000000 | ((FreqDivider) << 12) | FreqFractionnal;

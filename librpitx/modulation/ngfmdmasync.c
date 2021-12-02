@@ -45,21 +45,21 @@ void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR,
 
     (*ngfm)->SampleRate = SR;
     (*ngfm)->tunefreq = TuneFrequency;
-    clkgpio_SetAdvancedPllMode(&((*ngfm)->clkgpio), true);
-    clkgpio_SetCenterFrequency(&((*ngfm)->clkgpio), TuneFrequency, (*ngfm)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
-    clkgpio_SetFrequency(&((*ngfm)->clkgpio), 0);
+    clkgpio_set_advanced_pll_mode(&((*ngfm)->clkgpio), true);
+    clkgpio_set_center_frequency(&((*ngfm)->clkgpio), TuneFrequency, (*ngfm)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
+    clkgpio_set_frequency(&((*ngfm)->clkgpio), 0);
     clkgpio_enableclk(&((*ngfm)->clkgpio), 4); // GPIO 4 CLK by default
     (*ngfm)->syncwithpwm = UsePwm;
 
     if ((*ngfm)->syncwithpwm) {
-        pwmgpio_SetPllNumber(&((*ngfm)->pwmgpio), clk_plld, 1);
-        pwmgpio_SetFrequency(&((*ngfm)->pwmgpio), (*ngfm)->SampleRate);
+        pwmgpio_set_pll_number(&((*ngfm)->pwmgpio), clk_plld, 1);
+        pwmgpio_set_frequency(&((*ngfm)->pwmgpio), (*ngfm)->SampleRate);
     } else {
-        pcmgpio_SetPllNumber(&((*ngfm)->pcmgpio), clk_plld, 1);
-        pcmgpio_SetFrequency(&((*ngfm)->pcmgpio), (*ngfm)->SampleRate);
+        pcmgpio_set_pll_number(&((*ngfm)->pcmgpio), clk_plld, 1);
+        pcmgpio_set_frequency(&((*ngfm)->pcmgpio), (*ngfm)->SampleRate);
     }
 
-    bufferdma_SetDmaAlgo();
+    bufferdma_set_dma_algo();
 
     // Note : Spurious are at +/-(19.2MHZ/2^20)*Div*N : (N=1,2,3...) So we need to have a big div to spurious away BUT
     // Spurious are ALSO at +/-(19.2MHZ/2^20)*(2^20-Div)*N
@@ -75,20 +75,20 @@ void ngfmdmasync_deinit(ngfmdmasync_t **ngfm) {
     free(*ngfm);
 }
 
-void ngfmdmasync_SetPhase(ngfmdmasync_t **ngfm, bool inversed) {
-    clkgpio_SetPhase(&((*ngfm)->clkgpio), inversed);
+void ngfmdmasync_set_phase(ngfmdmasync_t **ngfm, bool inversed) {
+    clkgpio_set_phase(&((*ngfm)->clkgpio), inversed);
 }
 
-void ngfmdmasync_SetDmaAlgo(ngfmdmasync_t **ngfm) {
+void ngfmdmasync_set_dma_algo(ngfmdmasync_t **ngfm) {
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
 
         // Write a frequency sample
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, dma_pllc_frac, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, dma_pllc_frac, 1);
         cbp++;
 
         // Delay
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, (*ngfm)->syncwithpwm ? dma_pwm : dma_pcm, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, (*ngfm)->syncwithpwm ? dma_pwm : dma_pcm, 1);
         cbp++;
     }
 
@@ -97,14 +97,14 @@ void ngfmdmasync_SetDmaAlgo(ngfmdmasync_t **ngfm) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void ngfmdmasync_SetFrequencySample(ngfmdmasync_t **ngfm, uint32_t Index, float Frequency) {
+void ngfmdmasync_set_frequency_sample(ngfmdmasync_t **ngfm, uint32_t Index, float Frequency) {
     Index = Index % buffersize;
-    sampletab[Index] = (0x5A << 24) | clkgpio_GetMasterFrac(&((*ngfm)->clkgpio), Frequency);
+    sampletab[Index] = (0x5A << 24) | clkgpio_get_master_frac(&((*ngfm)->clkgpio), Frequency);
     //dbg_printf(1,"Frac=%d\n",GetMasterFrac(Frequency));
     bufferdma_PushSample(Index);
 }
 
-void ngfmdmasync_SetFrequencySamples(ngfmdmasync_t **ngfm, float *sample, size_t Size) {
+void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size_t Size) {
     size_t NbWritten = 0;
     int OSGranularity = 200;
     long int start_time;
@@ -135,7 +135,7 @@ void ngfmdmasync_SetFrequencySamples(ngfmdmasync_t **ngfm, float *sample, size_t
         int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;
 
         for (int i = 0; i < ToWrite; i++) {
-            ngfmdmasync_SetFrequencySample(ngfm, Index + i, sample[NbWritten++]);
+            ngfmdmasync_set_frequency_sample(ngfm, Index + i, sample[NbWritten++]);
         }
     }
 }

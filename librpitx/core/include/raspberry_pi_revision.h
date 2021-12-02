@@ -28,17 +28,7 @@
 #ifndef CORE_RASPBERRY_PI_INFO_H_
 #define CORE_RASPBERRY_PI_INFO_H_
 
-//-------------------------------------------------------------------------
-
 #include <stdint.h>
-
-//-------------------------------------------------------------------------
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-//-------------------------------------------------------------------------
 
 #define RPI_PERIPHERAL_BASE_UNKNOWN 0
 
@@ -117,11 +107,5 @@ const char *raspberryPiProcessorToString(RASPBERRY_PI_PROCESSOR_T processor);
 const char *raspberryPiI2CDeviceToString(RASPBERRY_PI_I2C_DEVICE_T i2cDevice);
 const char *raspberryPiModelToString(RASPBERRY_PI_MODEL_T model);
 const char *raspberryPiManufacturerToString(RASPBERRY_PI_MANUFACTURER_T manufacturer);
-
-//-------------------------------------------------------------------------
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

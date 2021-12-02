@@ -47,9 +47,9 @@ typedef struct amdmasync amdmasync_t;
 
 void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize);
 void amdmasync_deinit(amdmasync_t **amdma);
-void amdmasync_SetDmaAlgo(amdmasync_t **amdma);
+void amdmasync_set_dma_algo(amdmasync_t **amdma);
 
-void amdmasync_SetAmSample(amdmasync_t **amdma, uint32_t Index, float Amplitude);
-void amdmasync_SetAmSamples(amdmasync_t **amdma, float *sample, size_t Size);
+void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t Index, float Amplitude);
+void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t Size);
 
 #endif

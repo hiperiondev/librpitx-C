@@ -41,24 +41,24 @@ void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int C
 
     if (dualoutput) //Fixme if 2pin we want maybe 2*SRATE as it is distributed over 2 pin
     {
-        pwmgpio_SetMode(&((*serialdmas)->pwmgpio), pwm2pin);
+        pwmgpio_set_mode(&((*serialdmas)->pwmgpio), pwm2pin);
         SampleRate *= 2;
     } else {
-        pwmgpio_SetMode(&((*serialdmas)->pwmgpio), pwm1pin);
+        pwmgpio_set_mode(&((*serialdmas)->pwmgpio), pwm1pin);
     }
 
     if (SampleRate > 250000) {
-        pwmgpio_SetPllNumber(&((*serialdmas)->pwmgpio), clk_plld, 1);
-        pwmgpio_SetFrequency(&((*serialdmas)->pwmgpio), SampleRate);
+        pwmgpio_set_pll_number(&((*serialdmas)->pwmgpio), clk_plld, 1);
+        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), SampleRate);
     } else {
-        pwmgpio_SetPllNumber(&((*serialdmas)->pwmgpio), clk_osc, 1);
-        pwmgpio_SetFrequency(&((*serialdmas)->pwmgpio), SampleRate);
+        pwmgpio_set_pll_number(&((*serialdmas)->pwmgpio), clk_osc, 1);
+        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), SampleRate);
     }
 
     pwmgpio_enablepwm(&((*serialdmas)->pwmgpio), 12, 0); // By default PWM on GPIO 12/pin 32
     pwmgpio_enablepwm(&((*serialdmas)->pwmgpio), 13, 0); // By default PWM on GPIO 13/pin 33
 
-    serialdmasync_SetDmaAlgo(serialdmas);
+    serialdmasync_set_dma_algo(serialdmas);
 
 }
 
@@ -69,10 +69,10 @@ void serialdmasync_deinit(serialdmasync_t **serialdmas) {
     free(*serialdmas);
 }
 
-void serialdmasync_SetDmaAlgo(serialdmasync_t **serialdmas) {
+void serialdmasync_set_dma_algo(serialdmasync_t **serialdmas) {
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, dma_pwm, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, dma_pwm, 1);
         cbp++;
     }
 
@@ -81,7 +81,7 @@ void serialdmasync_SetDmaAlgo(serialdmasync_t **serialdmas) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void serialdmasync_SetSample(serialdmasync_t **serialdmas, uint32_t Index, int Sample) {
+void serialdmasync_set_sample(serialdmasync_t **serialdmas, uint32_t Index, int Sample) {
     Index = Index % buffersize;
     sampletab[Index] = Sample;
 

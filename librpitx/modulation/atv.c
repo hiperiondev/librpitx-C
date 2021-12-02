@@ -52,18 +52,18 @@ void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
 
     (*atvl)->SampleRate = SR;
     (*atvl)->tunefreq = TuneFrequency;
-    clkgpio_SetAdvancedPllMode(&((*atvl)->clkgpio), true);
-    clkgpio_SetCenterFrequency(&((*atvl)->clkgpio), TuneFrequency, (*atvl)->SampleRate);
-    clkgpio_SetFrequency(&((*atvl)->clkgpio), 0);
+    clkgpio_set_advanced_pll_mode(&((*atvl)->clkgpio), true);
+    clkgpio_set_center_frequency(&((*atvl)->clkgpio), TuneFrequency, (*atvl)->SampleRate);
+    clkgpio_set_frequency(&((*atvl)->clkgpio), 0);
     clkgpio_enableclk(&((*atvl)->clkgpio), 4); // GPIO 4 CLK by default
     (*atvl)->syncwithpwm = true;
 
     if ((*atvl)->syncwithpwm) {
-        pwmgpio_SetPllNumber(&((*atvl)->pwmgpio), clk_plld, 1);
-        pwmgpio_SetFrequency(&((*atvl)->pwmgpio), (*atvl)->SampleRate);
+        pwmgpio_set_pll_number(&((*atvl)->pwmgpio), clk_plld, 1);
+        pwmgpio_set_frequency(&((*atvl)->pwmgpio), (*atvl)->SampleRate);
     } else {
-        pcmgpio_SetPllNumber(&((*atvl)->pcmgpio), clk_plld, 1);
-        pcmgpio_SetFrequency(&((*atvl)->pcmgpio), (*atvl)->SampleRate);
+        pcmgpio_set_pll_number(&((*atvl)->pcmgpio), clk_plld, 1);
+        pcmgpio_set_frequency(&((*atvl)->pcmgpio), (*atvl)->SampleRate);
     }
 
     padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
@@ -73,7 +73,7 @@ void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
     usermem[(usermemsize - 1)] = (0x5A << 24) + (0 & 0x7) + (1 << 4) + (0 << 3); // Amp 0
     usermem[(usermemsize - 3)] = (0x5A << 24) + (4 & 0x7) + (1 << 4) + (0 << 3); // Amp 4
 
-    atv_SetDmaAlgo(atvl);
+    atv_set_dma_algo(atvl);
     padgpio_deinit(&pad);
 }
 
@@ -89,7 +89,7 @@ void atv_deinit(atv_t **atvl) {
     free(*atvl);
 }
 
-void atv_SetDmaAlgo(atv_t **atvl) {
+void atv_set_dma_algo(atv_t **atvl) {
     dma_cb_t *cbp = cbarray;
     //int LineResolution = 625;
 
@@ -118,20 +118,20 @@ void atv_SetDmaAlgo(atv_t **atvl) {
             //2us 0,30us 1
             //@0
             //SYNC preegalisation 2us
-            dma_SetEasyCB(cbp++, index_level0, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_0);
+            dma_set_easy_cb(cbp++, index_level0, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_0);
 
             //SYNC preegalisation 30us
-            dma_SetEasyCB(cbp++, index_level1, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_1);
+            dma_set_easy_cb(cbp++, index_level1, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_1);
         }
         //SYNC top trame 5*4*2frameCB
         for (int i = 0; i < 5; i++) {
-            dma_SetEasyCB(cbp++, index_level0, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, longsync_0);
+            dma_set_easy_cb(cbp++, index_level0, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, longsync_0);
 
-            dma_SetEasyCB(cbp++, index_level1, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, longsync_1);
+            dma_set_easy_cb(cbp++, index_level1, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, longsync_1);
         }
         //postegalisation ; copy paste from preegalisation
         //5*4*2CB
@@ -139,12 +139,12 @@ void atv_SetDmaAlgo(atv_t **atvl) {
             //2us 0,30us 1
             //@0
             //SYNC preegalisation 2us
-            dma_SetEasyCB(cbp++, index_level0, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_0);
+            dma_set_easy_cb(cbp++, index_level0, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_0);
 
             //SYNC preegalisation 30us
-            dma_SetEasyCB(cbp++, index_level1, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_1);
+            dma_set_easy_cb(cbp++, index_level1, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, shortsync_1);
         }
 
         //(304+305)*(4+52*2+2)CB
@@ -152,23 +152,23 @@ void atv_SetDmaAlgo(atv_t **atvl) {
 
             //@0
             //SYNC 0/ 5us
-            dma_SetEasyCB(cbp++, index_level0, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, normalsync_0);
+            dma_set_easy_cb(cbp++, index_level0, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, normalsync_0);
 
             //SYNC 1/ 5us
-            dma_SetEasyCB(cbp++, index_level1, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, normalsync_1);
+            dma_set_easy_cb(cbp++, index_level1, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, normalsync_1);
 
             for (uint32_t samplecnt = 0; samplecnt < 52; samplecnt++) //52 us
                     {
-                dma_SetEasyCB(cbp++, samplecnt + line * 52 + frame * 312 * 52, dma_pad, 1);
-                dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, 1);
+                dma_set_easy_cb(cbp++, samplecnt + line * 52 + frame * 312 * 52, dma_pad, 1);
+                dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, 1);
             }
 
             //FRONT PORSH
             //SYNC 2us
-            dma_SetEasyCB(cbp++, index_level1, dma_pad, 1);
-            dma_SetEasyCB(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, frontsync_1);
+            dma_set_easy_cb(cbp++, index_level1, dma_pad, 1);
+            dma_set_easy_cb(cbp++, 0, (*atvl)->syncwithpwm ? dma_pwm : dma_pcm, frontsync_1);
         }
     }
     cbp--;
@@ -176,7 +176,7 @@ void atv_SetDmaAlgo(atv_t **atvl) {
     librpitx_dbg_printf(1, "Last cbp :  %d \n", ((uintptr_t) (cbp) - (uintptr_t) (cbarray)) / sizeof(dma_cb_t));
 }
 
-void atv_SetFrame(atv_t **atvl, unsigned char *Luminance, size_t Lines) {
+void atv_set_frame(atv_t **atvl, unsigned char *Luminance, size_t Lines) {
     for (size_t i = 0; i < Lines; i++) {
         for (size_t x = 0; x < 52; x++) {
             int AmplitudePAD = (Luminance[i * 52 + x] / 255.0) * 6.0 + 1; //1 to 7

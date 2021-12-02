@@ -45,8 +45,8 @@ typedef struct phasedmasync phasedmasync_t;
 
 void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize);
 void phasedmasync_deinit(phasedmasync_t **phasedmas);
-void phasedmasync_SetDmaAlgo(phasedmasync_t **phasedmas);
-void phasedmasync_SetPhase(phasedmasync_t **phasedmas, uint32_t Index, int Phase);
-void phasedmasync_SetPhaseSamples(phasedmasync_t **phasedmas, int *sample, size_t Size);
+void phasedmasync_set_dma_algo(phasedmasync_t **phasedmas);
+void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t Index, int Phase);
+void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t Size);
 
 #endif

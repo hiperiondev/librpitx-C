@@ -30,7 +30,7 @@
 
 void fmdmasync_init(int Channel, uint32_t FifoSize);
 void fmdmasync_deinit(void);
-void fmdmasync_SetDmaAlgo(void);
-void fmdmasync_FillMemory(uint32_t FreqDivider, uint32_t FreqFractionnal);
+void fmdmasync_set_dma_algo(void);
+void fmdmasync_fill_memory(uint32_t FreqDivider, uint32_t FreqFractionnal);
 
 #endif

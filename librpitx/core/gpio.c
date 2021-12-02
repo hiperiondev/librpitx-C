@@ -48,7 +48,7 @@ void gpio_init(gpio_t **gpio, uint32_t base, uint32_t len) {
     (*gpio)->pi_is_2711 = false;
     (*gpio)->XOSC_FREQUENCY = 19200000;
     (*gpio)->gpioreg = NULL;
-    (*gpio)->gpioreg = (uint32_t*) mapmem(gpio_GetPeripheralBase(gpio) + base, len);
+    (*gpio)->gpioreg = (uint32_t*) mapmem(gpio_get_peripheral_base(gpio) + base, len);
     (*gpio)->gpiolen = len;
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -98,7 +98,7 @@ uint32_t gpio_get_hwbase(void) {
     return ret;
 }
 
-uint32_t gpio_GetPeripheralBase(gpio_t **gpio) {
+uint32_t gpio_get_peripheral_base(gpio_t **gpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     // RASPBERRY_PI_INFO_T info;
 
@@ -152,7 +152,7 @@ void clkgpio_init(clkgpio_t **clkgpio) {
     gpio_init(&((*clkgpio)->h_gpio), CLK_BASE, CLK_LEN);
     (*clkgpio)->gengpio = (generalgpio_t*) malloc(sizeof(struct generalgpio));
     generalgpio_init(&(*clkgpio)->gengpio);
-    clkgpio_SetppmFromNTP(clkgpio);
+    clkgpio_set_ppm_from_ntp(clkgpio);
     padgpio_t *level;
     padgpio_init(&level);
     padgpio_setlevel(&(level->h_gpio), 7); //MAX Power
@@ -173,7 +173,7 @@ void clkgpio_deinit(clkgpio_t **clkgpio) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-int clkgpio_SetPllNumber(clkgpio_t **clkgpio, int PllNo, int MashType) {
+int clkgpio_set_pll_number(clkgpio_t **clkgpio, int PllNo, int MashType) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     //print_clock_tree();
@@ -190,18 +190,18 @@ int clkgpio_SetPllNumber(clkgpio_t **clkgpio, int PllNo, int MashType) {
     usleep(100);
     //gpioreg[GPCLK_CNTL_2] = 0x5A000000 | (Mash << 9) | pllnumber /*|(1 << 5)*/; // 5 is Reset CLK
     //usleep(100);
-    (*clkgpio)->Pllfrequency = clkgpio_GetPllFrequency(clkgpio, (*clkgpio)->pllnumber);
+    (*clkgpio)->Pllfrequency = clkgpio_get_pll_frequency(clkgpio, (*clkgpio)->pllnumber);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
-uint64_t clkgpio_GetPllFrequency(clkgpio_t **clkgpio, int PllNo) {
+uint64_t clkgpio_get_pll_frequency(clkgpio_t **clkgpio, int PllNo) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     uint64_t Freq = 0;
-    clkgpio_SetppmFromNTP(clkgpio);
+    clkgpio_set_ppm_from_ntp(clkgpio);
     switch (PllNo) {
         case clk_osc:
             Freq = (*clkgpio)->h_gpio->XOSC_FREQUENCY;
@@ -239,7 +239,7 @@ uint64_t clkgpio_GetPllFrequency(clkgpio_t **clkgpio, int PllNo) {
     return Freq;
 }
 
-int clkgpio_SetClkDivFrac(clkgpio_t **clkgpio, uint32_t Div, uint32_t Frac) {
+int clkgpio_set_clk_div_frac(clkgpio_t **clkgpio, uint32_t Div, uint32_t Frac) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*clkgpio)->h_gpio->gpioreg[GPCLK_DIV] = 0x5A000000 | ((Div) << 12) | Frac;
@@ -251,7 +251,7 @@ int clkgpio_SetClkDivFrac(clkgpio_t **clkgpio, uint32_t Div, uint32_t Frac) {
     return 0;
 }
 
-int clkgpio_SetMasterMultFrac(clkgpio_t **clkgpio, uint32_t Mult, uint32_t Frac) {
+int clkgpio_set_master_mult_frac(clkgpio_t **clkgpio, uint32_t Mult, uint32_t Frac) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     //dbg_printf(1,"Master Mult %d Frac %d\n",Mult,Frac);
@@ -264,7 +264,7 @@ int clkgpio_SetMasterMultFrac(clkgpio_t **clkgpio, uint32_t Mult, uint32_t Frac)
     return 0;
 }
 
-int clkgpio_SetFrequency(clkgpio_t **clkgpio, double Frequency) {
+int clkgpio_set_frequency(clkgpio_t **clkgpio, double Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if ((*clkgpio)->ModulateFromMasterPLL) {
@@ -293,7 +293,7 @@ int clkgpio_SetFrequency(clkgpio_t **clkgpio, double Frequency) {
         freqctl &= 0xFFFFF;              // Fractional is 20bits
         uint32_t FracMultiply = freqctl & 0xFFFFF;
 
-        clkgpio_SetMasterMultFrac(clkgpio, IntMultiply, FracMultiply);
+        clkgpio_set_master_mult_frac(clkgpio, IntMultiply, FracMultiply);
     } else {
         double Freqresult = (double) (*clkgpio)->Pllfrequency / (double) ((*clkgpio)->CentralFrequency + Frequency);
         uint32_t FreqDivider = (uint32_t) Freqresult;
@@ -302,7 +302,7 @@ int clkgpio_SetFrequency(clkgpio_t **clkgpio, double Frequency) {
             librpitx_dbg_printf(0, "Frequency out of range\n");
         librpitx_dbg_printf(1, "DIV/FRAC %u/%u \n", FreqDivider, FreqFractionnal);
 
-        clkgpio_SetClkDivFrac(clkgpio, FreqDivider, FreqFractionnal);
+        clkgpio_set_clk_div_frac(clkgpio, FreqDivider, FreqFractionnal);
     }
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -310,7 +310,7 @@ int clkgpio_SetFrequency(clkgpio_t **clkgpio, double Frequency) {
     return 0;
 }
 
-uint32_t clkgpio_GetMasterFrac(clkgpio_t **clkgpio, double Frequency) {
+uint32_t clkgpio_get_master_frac(clkgpio_t **clkgpio, double Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if ((*clkgpio)->ModulateFromMasterPLL) {
@@ -346,7 +346,7 @@ uint32_t clkgpio_GetMasterFrac(clkgpio_t **clkgpio, double Frequency) {
     }
 }
 
-int clkgpio_ComputeBestLO(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth) {
+int clkgpio_compute_best_lo(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     // Algorithm adapted from https://github.com/SaucySoliton/PiFmRds/blob/master/src/pi_fm_rds.c
@@ -433,7 +433,7 @@ double clkgpio_GetFrequencyResolution(clkgpio_t **clkgpio) {
     return res;
 }
 
-double clkgpio_GetRealFrequency(clkgpio_t **clkgpio, double Frequency) {
+double clkgpio_get_real_frequency(clkgpio_t **clkgpio, double Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     double FloatMult = ((double) ((*clkgpio)->CentralFrequency + Frequency) * (*clkgpio)->PllFixDivider) / (double) ((*clkgpio)->h_gpio->XOSC_FREQUENCY);
@@ -449,7 +449,7 @@ double clkgpio_GetRealFrequency(clkgpio_t **clkgpio, double Frequency) {
     return RealFrequency;
 }
 
-int clkgpio_SetCenterFrequency(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth) {
+int clkgpio_set_center_frequency(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*clkgpio)->CentralFrequency = Frequency;
@@ -457,19 +457,19 @@ int clkgpio_SetCenterFrequency(clkgpio_t **clkgpio, uint64_t Frequency, int Band
         // Choose best PLLDiv and Div
 
         if ((*clkgpio)->h_gpio->pi_is_2711) {
-            clkgpio_ComputeBestLO(clkgpio, Frequency * 2, Bandwidth); //FixeDivider update
+            clkgpio_compute_best_lo(clkgpio, Frequency * 2, Bandwidth); //FixeDivider update
             // PllFixDivider=PllFixDivider/2;
         } else {
-            clkgpio_ComputeBestLO(clkgpio, Frequency, Bandwidth); //FixeDivider update
+            clkgpio_compute_best_lo(clkgpio, Frequency, Bandwidth); //FixeDivider update
         }
 
         if ((*clkgpio)->PllFixDivider == 1) {
             // We will use PDIV by 2, means like we have a 2 times more
-            clkgpio_SetClkDivFrac(clkgpio, 2, 0x0); // NO MASH !!!!
+            clkgpio_set_clk_div_frac(clkgpio, 2, 0x0); // NO MASH !!!!
             librpitx_dbg_printf(1, "Pll Fix Divider\n");
 
         } else {
-            clkgpio_SetClkDivFrac(clkgpio, (*clkgpio)->PllFixDivider, 0x0); // NO MASH !!!!
+            clkgpio_set_clk_div_frac(clkgpio, (*clkgpio)->PllFixDivider, 0x0); // NO MASH !!!!
 
         }
 
@@ -508,7 +508,7 @@ int clkgpio_SetCenterFrequency(clkgpio_t **clkgpio, uint64_t Frequency, int Band
          dbg_printf(1,"PLLC after %d =%x\n",i,gpioreg[(A2W_PLLC_ANA0 ) + i]);
          }
          */
-        clkgpio_SetFrequency(clkgpio, 0);
+        clkgpio_set_frequency(clkgpio, 0);
         usleep(100);
         if (((*clkgpio)->h_gpio->gpioreg[CM_LOCK] & CM_LOCK_FLOCKC) > 0)
             librpitx_dbg_printf(1, "Master PLLC Locked\n");
@@ -523,7 +523,7 @@ int clkgpio_SetCenterFrequency(clkgpio_t **clkgpio, uint64_t Frequency, int Band
         usleep(100);
 
     } else {
-        clkgpio_GetPllFrequency(clkgpio, (*clkgpio)->pllnumber);   // Be sure to get the master PLL frequency
+        clkgpio_get_pll_frequency(clkgpio, (*clkgpio)->pllnumber);   // Be sure to get the master PLL frequency
         (*clkgpio)->h_gpio->gpioreg[GPCLK_CNTL] = 0x5A000000 | ((*clkgpio)->Mash << 9) | (*clkgpio)->pllnumber | (1 << 4); //4 is START CLK
     }
 
@@ -532,7 +532,7 @@ int clkgpio_SetCenterFrequency(clkgpio_t **clkgpio, uint64_t Frequency, int Band
     return 0;
 }
 
-void clkgpio_SetPhase(clkgpio_t **clkgpio, bool inversed) {
+void clkgpio_set_phase(clkgpio_t **clkgpio, bool inversed) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     uint32_t StateBefore = (*clkgpio)->h_gpio->gpioreg[GPCLK_CNTL];
@@ -546,7 +546,7 @@ void clkgpio_SetPhase(clkgpio_t **clkgpio, bool inversed) {
 
 //https://elinux.org/The_Undocumented_Pi
 //Should inspect https://github.com/raspberrypi/linux/blob/ffd7bf4085b09447e5db96edd74e524f118ca3fe/drivers/clk/bcm/clk-bcm2835.c#L695
-void clkgpio_SetAdvancedPllMode(clkgpio_t **clkgpio, bool Advanced) {
+void clkgpio_set_advanced_pll_mode(clkgpio_t **clkgpio, bool Advanced) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*clkgpio)->ModulateFromMasterPLL = Advanced;
@@ -567,7 +567,7 @@ void clkgpio_SetAdvancedPllMode(clkgpio_t **clkgpio, bool Advanced) {
         usleep(100);
         (*clkgpio)->h_gpio->gpioreg[EMMCCLK_CNTL] = (0xF00 & clktmp) | (0x5a << 24) | (1 << 4) | (6); // run , src=PLLD
 
-        clkgpio_SetPllNumber(clkgpio, clk_pllc, 0); // Use PLL_C , Do not USE MASH which generates spurious
+        clkgpio_set_pll_number(clkgpio, clk_pllc, 0); // Use PLL_C , Do not USE MASH which generates spurious
 
         (*clkgpio)->h_gpio->gpioreg[CM_PLLC] = 0x5A00022A; // Enable PllC_PER
         usleep(100);
@@ -585,7 +585,7 @@ void clkgpio_SetAdvancedPllMode(clkgpio_t **clkgpio, bool Advanced) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void clkgpio_SetPLLMasterLoop(clkgpio_t **clkgpio, int Ki, int Kp, int Ka) {
+void clkgpio_set_pll_master_loop(clkgpio_t **clkgpio, int Ki, int Kp, int Ka) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     uint32_t ana[4];
@@ -755,7 +755,7 @@ void clkgpio_disableclk(clkgpio_t **clkgpio, int gpio) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void clkgpio_Setppm(clkgpio_t **clkgpio, double ppm) {
+void clkgpio_set_ppm(clkgpio_t **clkgpio, double ppm) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*clkgpio)->clk_ppm = ppm; // -2 is empiric : FixMe
@@ -763,7 +763,7 @@ void clkgpio_Setppm(clkgpio_t **clkgpio, double ppm) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-void clkgpio_SetppmFromNTP(clkgpio_t **clkgpio) {
+void clkgpio_set_ppm_from_ntp(clkgpio_t **clkgpio) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     struct timex ntx;
@@ -783,7 +783,7 @@ void clkgpio_SetppmFromNTP(clkgpio_t **clkgpio) {
         librpitx_dbg_printf(1, "Info:NTP find offset %ld freq %ld pps=%ld ppm=%f\n", ntx.offset, ntx.freq, ntx.ppsfreq, ntp_ppm);
 
         if (fabs(ntp_ppm) < 200)
-            clkgpio_Setppm(clkgpio, ntp_ppm/*+0.70*/); // 0.7 is empiric
+            clkgpio_set_ppm(clkgpio, ntp_ppm/*+0.70*/); // 0.7 is empiric
     }
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
@@ -932,7 +932,7 @@ void pwmgpio_disablepwm(pwmgpio_t **pwmgpio, int gpio) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-int pwmgpio_SetPllNumber(pwmgpio_t **pwmgpio, int PllNo, int MashType) {
+int pwmgpio_set_pll_number(pwmgpio_t **pwmgpio, int PllNo, int MashType) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if (PllNo < 8)
@@ -945,21 +945,21 @@ int pwmgpio_SetPllNumber(pwmgpio_t **pwmgpio, int PllNo, int MashType) {
         (*pwmgpio)->Mash = 0;
     (*pwmgpio)->clk->h_gpio->gpioreg[PWMCLK_CNTL] = 0x5A000000 | ((*pwmgpio)->Mash << 9) | (*pwmgpio)->pllnumber | (0 << 4); //4 is STOP CLK
     usleep(100);
-    (*pwmgpio)->Pllfrequency = pwmgpio_GetPllFrequency(pwmgpio, (*pwmgpio)->pllnumber);
+    (*pwmgpio)->Pllfrequency = pwmgpio_get_pll_frequency(pwmgpio, (*pwmgpio)->pllnumber);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
-uint64_t pwmgpio_GetPllFrequency(pwmgpio_t **pwmgpio, int PllNo) {
+uint64_t pwmgpio_get_pll_frequency(pwmgpio_t **pwmgpio, int PllNo) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
-    return clkgpio_GetPllFrequency(&((*pwmgpio)->clk), PllNo);
+    return clkgpio_get_pll_frequency(&((*pwmgpio)->clk), PllNo);
 }
 
-int pwmgpio_SetFrequency(pwmgpio_t **pwmgpio, uint64_t Frequency) {
+int pwmgpio_set_frequency(pwmgpio_t **pwmgpio, uint64_t Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*pwmgpio)->Prediv = 32; // Fixe for now , need investigation if not 32 !!!! FixMe !
@@ -975,14 +975,14 @@ int pwmgpio_SetFrequency(pwmgpio_t **pwmgpio, uint64_t Frequency) {
     (*pwmgpio)->clk->h_gpio->gpioreg[PWMCLK_CNTL] = 0x5A000000 | ((*pwmgpio)->Mash << 9) | (*pwmgpio)->pllnumber | (1 << 4); //4 is STAR CLK
     usleep(100);
 
-    pwmgpio_SetPrediv(pwmgpio, (*pwmgpio)->Prediv); // SetMode should be called before
+    pwmgpio_set_prediv(pwmgpio, (*pwmgpio)->Prediv); // SetMode should be called before
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
-void pwmgpio_SetMode(pwmgpio_t **pwmgpio, int Mode) {
+void pwmgpio_set_mode(pwmgpio_t **pwmgpio, int Mode) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if ((Mode >= pwm1pin) && (Mode <= pwm1pinrepeat))
@@ -991,7 +991,7 @@ void pwmgpio_SetMode(pwmgpio_t **pwmgpio, int Mode) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-int pwmgpio_SetPrediv(pwmgpio_t **pwmgpio, int predivisor) { // Mode should be only for SYNC or a Data serializer : Todo
+int pwmgpio_set_prediv(pwmgpio_t **pwmgpio, int predivisor) { // Mode should be only for SYNC or a Data serializer : Todo
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*pwmgpio)->Prediv = predivisor;
@@ -1056,7 +1056,7 @@ void pcmgpio_deinit(pcmgpio_t **pcmgpio) {
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 }
 
-int pcmgpio_SetPllNumber(pcmgpio_t **pcmgpio, int PllNo, int MashType) {
+int pcmgpio_set_pll_number(pcmgpio_t **pcmgpio, int PllNo, int MashType) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if (PllNo < 8)
@@ -1068,20 +1068,20 @@ int pcmgpio_SetPllNumber(pcmgpio_t **pcmgpio, int PllNo, int MashType) {
     else
         (*pcmgpio)->Mash = 0;
     (*pcmgpio)->clk->h_gpio->gpioreg[PCMCLK_CNTL] = 0x5A000000 | ((*pcmgpio)->Mash << 9) | (*pcmgpio)->pllnumber | (1 << 4); //4 is START CLK
-    (*pcmgpio)->Pllfrequency = pcmgpio_GetPllFrequency(pcmgpio, (*pcmgpio)->pllnumber);
+    (*pcmgpio)->Pllfrequency = pcmgpio_get_pll_frequency(pcmgpio, (*pcmgpio)->pllnumber);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
     return 0;
 }
 
-uint64_t pcmgpio_GetPllFrequency(pcmgpio_t **pcmgpio, int PllNo) {
+uint64_t pcmgpio_get_pll_frequency(pcmgpio_t **pcmgpio, int PllNo) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
-    return clkgpio_GetPllFrequency(&((*pcmgpio)->clk), PllNo);
+    return clkgpio_get_pll_frequency(&((*pcmgpio)->clk), PllNo);
 }
 
-int pcmgpio_ComputePrediv(pcmgpio_t **pcmgpio, uint64_t Frequency) {
+int pcmgpio_compute_prediv(pcmgpio_t **pcmgpio, uint64_t Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     int prediv = 5;
@@ -1098,10 +1098,10 @@ int pcmgpio_ComputePrediv(pcmgpio_t **pcmgpio, uint64_t Frequency) {
     return prediv;
 }
 
-int pcmgpio_SetFrequency(pcmgpio_t **pcmgpio, uint64_t Frequency) {
+int pcmgpio_set_frequency(pcmgpio_t **pcmgpio, uint64_t Frequency) {
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
-    (*pcmgpio)->Prediv = pcmgpio_ComputePrediv(pcmgpio, Frequency);
+    (*pcmgpio)->Prediv = pcmgpio_compute_prediv(pcmgpio, Frequency);
     double Freqresult = (double) (*pcmgpio)->Pllfrequency / (double) (Frequency * (*pcmgpio)->Prediv);
     uint32_t FreqDivider = (uint32_t) Freqresult;
     uint32_t FreqFractionnal = (uint32_t) (4096 * (Freqresult - (double) FreqDivider));
@@ -1109,14 +1109,14 @@ int pcmgpio_SetFrequency(pcmgpio_t **pcmgpio, uint64_t Frequency) {
     if ((FreqDivider > 4096) || (FreqDivider < 2))
         librpitx_dbg_printf(1, "PCM Frequency out of range\n");
     (*pcmgpio)->clk->h_gpio->gpioreg[PCMCLK_DIV] = 0x5A000000 | ((FreqDivider) << 12) | FreqFractionnal;
-    pcmgpio_SetPrediv(pcmgpio, (*pcmgpio)->Prediv);
+    pcmgpio_set_prediv(pcmgpio, (*pcmgpio)->Prediv);
 
     librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
-int pcmgpio_SetPrediv(pcmgpio_t **pcmgpio, int predivisor) { // Carefull we use a 10 fixe divisor for now : frequency is thus f/10 as a samplerate
+int pcmgpio_set_prediv(pcmgpio_t **pcmgpio, int predivisor) { // Carefull we use a 10 fixe divisor for now : frequency is thus f/10 as a samplerate
     librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if (predivisor > 1000) {

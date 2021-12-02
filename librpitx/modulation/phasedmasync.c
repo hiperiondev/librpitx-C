@@ -47,8 +47,8 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint3
     generalgpio_init(&((*phasedmas)->gengpio));
 
     (*phasedmas)->SampleRate = SampleRateIn;
-    pwmgpio_SetMode(&((*phasedmas)->pwmgpio), pwm1pinrepeat);
-    pwmgpio_SetPllNumber(&((*phasedmas)->pwmgpio), clk_pllc, 0);
+    pwmgpio_set_mode(&((*phasedmas)->pwmgpio), pwm1pinrepeat);
+    pwmgpio_set_pll_number(&((*phasedmas)->pwmgpio), clk_pllc, 0);
 
     (*phasedmas)->tunefreq = TuneFrequency * NumberOfPhase;
 #define MAX_PWM_RATE 360000000
@@ -58,15 +58,15 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint3
         (*phasedmas)->NumbPhase = NumberOfPhase;
     else
         librpitx_dbg_printf(1, "PWM critical error: %d is not a legal number of phase\n", NumberOfPhase);
-    clkgpio_SetAdvancedPllMode(&((*phasedmas)->clkgpio), true);
+    clkgpio_set_advanced_pll_mode(&((*phasedmas)->clkgpio), true);
 
-    clkgpio_ComputeBestLO(&((*phasedmas)->clkgpio), (*phasedmas)->tunefreq, 0); // compute PWM divider according to MasterPLL clkgpio_PllFixDivider
+    clkgpio_compute_best_lo(&((*phasedmas)->clkgpio), (*phasedmas)->tunefreq, 0); // compute PWM divider according to MasterPLL clkgpio_PllFixDivider
     double FloatMult = ((double) ((*phasedmas)->tunefreq) * (*phasedmas)->clkgpio->PllFixDivider) / (double) ((*phasedmas)->pwmgpio->h_gpio->XOSC_FREQUENCY);
     uint32_t freqctl = FloatMult * ((double) (1 << 20));
     int IntMultiply = freqctl >> 20; // Need to be calculated to have a center frequency
     freqctl &= 0xFFFFF; // Fractionnal is 20bits
     uint32_t FracMultiply = freqctl & 0xFFFFF;
-    clkgpio_SetMasterMultFrac(&((*phasedmas)->clkgpio), IntMultiply, FracMultiply);
+    clkgpio_set_master_mult_frac(&((*phasedmas)->clkgpio), IntMultiply, FracMultiply);
     librpitx_dbg_printf(1, "PWM Mult %d Frac %d Div %d\n", IntMultiply, FracMultiply, (*phasedmas)->clkgpio->PllFixDivider);
 
     (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_DIV] = 0x5A000000 | (((*phasedmas)->clkgpio->PllFixDivider) << 12) | (*phasedmas)->pwmgpio->pllnumber; // PWM clock input divider
@@ -75,14 +75,14 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint3
     (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_CNTL] = 0x5A000000 | ((*phasedmas)->pwmgpio->Mash << 9) | (((*phasedmas)->clkgpio->PllFixDivider) << 12)
             | (*phasedmas)->pwmgpio->pllnumber | (1 << 4); //4 is START CLK
     usleep(100);
-    pwmgpio_SetPrediv(&((*phasedmas)->pwmgpio), NumberOfPhase);	//Originaly 32 but To minimize jitter , we set minimal buffer to repeat
+    pwmgpio_set_prediv(&((*phasedmas)->pwmgpio), NumberOfPhase);	//Originaly 32 but To minimize jitter , we set minimal buffer to repeat
 
     pwmgpio_enablepwm(&((*phasedmas)->pwmgpio), 12, 0); // By default PWM on GPIO 12/pin 32
 
-    pcmgpio_SetPllNumber(&((*phasedmas)->pcmgpio), clk_plld, 1); // Clk for Samplerate by PCM
-    pcmgpio_SetFrequency(&((*phasedmas)->pcmgpio), (*phasedmas)->SampleRate);
+    pcmgpio_set_pll_number(&((*phasedmas)->pcmgpio), clk_plld, 1); // Clk for Samplerate by PCM
+    pcmgpio_set_frequency(&((*phasedmas)->pcmgpio), (*phasedmas)->SampleRate);
 
-    phasedmasync_SetDmaAlgo(phasedmas);
+    phasedmasync_set_dma_algo(phasedmas);
 
     uint32_t ZeroPhase = 0;
     switch ((*phasedmas)->NumbPhase) {
@@ -123,7 +123,7 @@ void phasedmasync_deinit(phasedmasync_t **phasedmas) {
     free(*phasedmas);
 }
 
-void phasedmasync_SetDmaAlgo(phasedmasync_t **phasedmas) {
+void phasedmasync_set_dma_algo(phasedmasync_t **phasedmas) {
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
         cbp->info = BCM2708_DMA_NO_WIDE_BURSTS | BCM2708_DMA_WAIT_RESP;
@@ -150,7 +150,7 @@ void phasedmasync_SetDmaAlgo(phasedmasync_t **phasedmas) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void phasedmasync_SetPhase(phasedmasync_t **phasedmas, uint32_t Index, int Phase) {
+void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t Index, int Phase) {
     Index = Index % buffersize;
     Phase = (Phase + (*phasedmas)->NumbPhase) % (*phasedmas)->NumbPhase;
     sampletab[Index] = (*phasedmas)->TabPhase[Phase];
@@ -158,7 +158,7 @@ void phasedmasync_SetPhase(phasedmasync_t **phasedmas, uint32_t Index, int Phase
 
 }
 
-void phasedmasync_SetPhaseSamples(phasedmasync_t **phasedmas, int *sample, size_t Size) {
+void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t Size) {
     size_t NbWritten = 0;
     //int OSGranularity = 100;
     long int start_time;
@@ -197,7 +197,7 @@ void phasedmasync_SetPhaseSamples(phasedmasync_t **phasedmas, int *sample, size_
         //printf("Available after=%d Timetosleep %d To Write %d\n",Available,TimeToSleep,ToWrite);
         for (int i = 0; i < ToWrite; i++) {
 
-            phasedmasync_SetPhase(phasedmas, Index + i, sample[NbWritten++]);
+            phasedmasync_set_phase(phasedmas, Index + i, sample[NbWritten++]);
         }
     }
 }

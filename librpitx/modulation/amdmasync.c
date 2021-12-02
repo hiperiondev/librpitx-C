@@ -44,24 +44,24 @@ void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, in
 
     (*amdma)->SampleRate = SR;
     (*amdma)->tunefreq = TuneFrequency;
-    clkgpio_SetAdvancedPllMode(&((*amdma)->clkgpio), true);
-    clkgpio_SetCenterFrequency(&((*amdma)->clkgpio), TuneFrequency, (*amdma)->SampleRate);
-    clkgpio_SetFrequency(&((*amdma)->clkgpio), 0);
+    clkgpio_set_advanced_pll_mode(&((*amdma)->clkgpio), true);
+    clkgpio_set_center_frequency(&((*amdma)->clkgpio), TuneFrequency, (*amdma)->SampleRate);
+    clkgpio_set_frequency(&((*amdma)->clkgpio), 0);
     clkgpio_enableclk(&((*amdma)->clkgpio), 4); // GPIO 4 CLK by default
     (*amdma)->syncwithpwm = false;
 
     if ((*amdma)->syncwithpwm) {
-        pwmgpio_SetPllNumber(&((*amdma)->pwmgpio), clk_plld, 1);
-        pwmgpio_SetFrequency(&((*amdma)->pwmgpio), (*amdma)->SampleRate);
+        pwmgpio_set_pll_number(&((*amdma)->pwmgpio), clk_plld, 1);
+        pwmgpio_set_frequency(&((*amdma)->pwmgpio), (*amdma)->SampleRate);
     } else {
-        pcmgpio_SetPllNumber(&((*amdma)->pcmgpio), clk_plld, 1);
-        pcmgpio_SetFrequency(&((*amdma)->pcmgpio), (*amdma)->SampleRate);
+        pcmgpio_set_pll_number(&((*amdma)->pcmgpio), clk_plld, 1);
+        pcmgpio_set_frequency(&((*amdma)->pcmgpio), (*amdma)->SampleRate);
     }
 
     padgpio_t *pad;
     padgpio_init(&pad);
     (*amdma)->Originfsel = (*pad).h_gpio->gpioreg[PADS_GPIO_0];
-    amdmasync_SetDmaAlgo(amdma);
+    amdmasync_set_dma_algo(amdma);
     padgpio_deinit(&pad);
 }
 
@@ -77,22 +77,22 @@ void amdmasync_deinit(amdmasync_t **amdma) {
     free(*amdma);
 }
 
-void amdmasync_SetDmaAlgo(amdmasync_t **amdma) {
+void amdmasync_set_dma_algo(amdmasync_t **amdma) {
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
 
         //@0
         //Set Amplitude by writing to PADS
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, dma_pad, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, dma_pad, 1);
         cbp++;
 
         //@1
         //Set Amplitude  to FSEL for amplitude=0
-        dma_SetEasyCB(cbp, samplecnt * registerbysample + 1, dma_fsel, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample + 1, dma_fsel, 1);
         cbp++;
 
         // Delay
-        dma_SetEasyCB(cbp, samplecnt * registerbysample, (*amdma)->syncwithpwm ? dma_pwm : dma_pcm, 1);
+        dma_set_easy_cb(cbp, samplecnt * registerbysample, (*amdma)->syncwithpwm ? dma_pwm : dma_pcm, 1);
         cbp++;
 
     }
@@ -102,7 +102,7 @@ void amdmasync_SetDmaAlgo(amdmasync_t **amdma) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void amdmasync_SetAmSample(amdmasync_t **amdma, uint32_t Index, float Amplitude) //-1;1
+void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t Index, float Amplitude) //-1;1
 {
     Index = Index % buffersize;
 
@@ -127,7 +127,7 @@ void amdmasync_SetAmSample(amdmasync_t **amdma, uint32_t Index, float Amplitude)
     bufferdma_PushSample(Index);
 }
 
-void amdmasync_SetAmSamples(amdmasync_t **amdma, float *sample, size_t Size) {
+void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t Size) {
     size_t NbWritten = 0;
     int OSGranularity = 100;
     long int start_time;
@@ -156,7 +156,7 @@ void amdmasync_SetAmSamples(amdmasync_t **amdma, float *sample, size_t Size) {
         int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;
 
         for (int i = 0; i < ToWrite; i++) {
-            amdmasync_SetAmSample(amdma, Index + i, sample[NbWritten++]);
+            amdmasync_set_am_sample(amdma, Index + i, sample[NbWritten++]);
         }
     }
 }
