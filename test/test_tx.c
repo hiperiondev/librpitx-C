@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
         case MODE_RPITX_IQ:
         case MODE_RPITX_IQ_FLOAT: {
             iqdmasync_init(&iqsender, SetFrequency, SampleRate, 14, FifoSize, MODE_IQ);
-            iqdmasync_Setppm(&iqsender, ppmpll);
+            iqdmasync_set_ppm(&iqsender, ppmpll);
         }
             break;
 
@@ -279,7 +279,7 @@ int main(int argc, char *argv[]) {
                         break;
 
                 }
-                iqdmasync_SetIQSamples(&iqsender, CIQBuffer_, CplxSampleNumber, Harmonic);
+                iqdmasync_set_iq_samples(&iqsender, CIQBuffer_, CplxSampleNumber, Harmonic);
 
             }
                 break;
@@ -311,11 +311,11 @@ int main(int argc, char *argv[]) {
                 }
                 switch (Mode) {
                     case MODE_RPITX_RFA: {
-                        amdmasync_SetAmSamples(&amsender, AmOrFmBuffer, SampleNumber);
+                        amdmasync_set_am_samples(&amsender, AmOrFmBuffer, SampleNumber);
                     }
                         break;
                     case MODE_RPITX_RF: {
-                        ngfmdmasync_SetFrequencySamples(&fmsender, AmOrFmBuffer, SampleNumber);
+                        ngfmdmasync_set_frequency_samples(&fmsender, AmOrFmBuffer, SampleNumber);
                     }
                         break;
                 }
