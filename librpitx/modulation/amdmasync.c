@@ -35,17 +35,17 @@
 #include "gpio.h"
 #include "amdmasync.h"
 
-void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize) {
+void amdmasync_init(amdmasync_t **amdma, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size) {
     *amdma = (amdmasync_t*) malloc(sizeof(struct amdmasync));
-    bufferdma_init(Channel, FifoSize, 3, 2);
+    bufferdma_init(channel, fifo_size, 3, 2);
     clkgpio_init(&((*amdma)->clkgpio));
     pwmgpio_init(&((*amdma)->pwmgpio));
     pcmgpio_init(&((*amdma)->pcmgpio));
 
-    (*amdma)->SampleRate = SR;
-    (*amdma)->tunefreq = TuneFrequency;
+    (*amdma)->SampleRate = sr;
+    (*amdma)->tunefreq = tune_frequency;
     clkgpio_set_advanced_pll_mode(&((*amdma)->clkgpio), true);
-    clkgpio_set_center_frequency(&((*amdma)->clkgpio), TuneFrequency, (*amdma)->SampleRate);
+    clkgpio_set_center_frequency(&((*amdma)->clkgpio), tune_frequency, (*amdma)->SampleRate);
     clkgpio_set_frequency(&((*amdma)->clkgpio), 0);
     clkgpio_enableclk(&((*amdma)->clkgpio), 4); // GPIO 4 CLK by default
     (*amdma)->syncwithpwm = false;
@@ -102,11 +102,11 @@ void amdmasync_set_dma_algo(amdmasync_t **amdma) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t Index, float Amplitude) //-1;1
+void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t index, float amplitude) //-1;1
 {
-    Index = Index % buffersize;
+    index = index % buffersize;
 
-    int IntAmplitude = round(abs(Amplitude) * 8.0) - 1;
+    int IntAmplitude = round(abs(amplitude) * 8.0) - 1;
 
     int IntAmplitudePAD = IntAmplitude;
     if (IntAmplitudePAD > 7)
@@ -115,29 +115,29 @@ void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t Index, float Amplitud
         IntAmplitudePAD = 0;
 
     //dbg_printf(1,"Amplitude=%f PAD %d\n",Amplitude,IntAmplitudePAD);
-    sampletab[Index * registerbysample] = (0x5A << 24) + (IntAmplitudePAD & 0x7) + (1 << 4) + (0 << 3); // Amplitude PAD
+    sampletab[index * registerbysample] = (0x5A << 24) + (IntAmplitudePAD & 0x7) + (1 << 4) + (0 << 3); // Amplitude PAD
 
     //sampletab[Index*registerbysample+2]=(Originfsel & ~(7 << 12)) | (4 << 12); //Alternate is CLK
     if (IntAmplitude == -1) {
-        sampletab[Index * registerbysample + 1] = ((*amdma)->Originfsel & ~(7 << 12)) | (0 << 12); //Pin is in -> Amplitude 0
+        sampletab[index * registerbysample + 1] = ((*amdma)->Originfsel & ~(7 << 12)) | (0 << 12); //Pin is in -> Amplitude 0
     } else {
-        sampletab[Index * registerbysample + 1] = ((*amdma)->Originfsel & ~(7 << 12)) | (4 << 12); //Alternate is CLK
+        sampletab[index * registerbysample + 1] = ((*amdma)->Originfsel & ~(7 << 12)) | (4 << 12); //Alternate is CLK
     }
 
-    bufferdma_PushSample(Index);
+    bufferdma_push_sample(index);
 }
 
-void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t Size) {
+void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t size) {
     size_t NbWritten = 0;
     int OSGranularity = 100;
     long int start_time;
     long time_difference = 0;
     struct timespec gettime_now;
 
-    while (NbWritten < Size) {
+    while (NbWritten < size) {
         clock_gettime(CLOCK_REALTIME, &gettime_now);
         start_time = gettime_now.tv_nsec;
-        int Available = bufferdma_GetBufferAvailable();
+        int Available = bufferdma_get_buffer_available();
         int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (*amdma)->SampleRate - OSGranularity; // Sleep for theorically fill 3/4 of Fifo
         if (TimeToSleep > 0) {
             //dbg_printf(1,"buffer size %d Available %d SampleRate %d Sleep %d\n",buffersize,Available,SampleRate,TimeToSleep);
@@ -151,9 +151,9 @@ void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t Size) {
         if (time_difference < 0)
             time_difference += 1E9;
         //dbg_printf(1,"Measure samplerate=%d\n",(int)((GetBufferAvailable()-Available)*1e9/time_difference));
-        Available = bufferdma_GetBufferAvailable();
-        int Index = bufferdma_GetUserMemIndex();
-        int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;
+        Available = bufferdma_get_buffer_available();
+        int Index = bufferdma_get_user_mem_index();
+        int ToWrite = ((int) size - (int) NbWritten) < Available ? size - NbWritten : Available;
 
         for (int i = 0; i < ToWrite; i++) {
             amdmasync_set_am_sample(amdma, Index + i, sample[NbWritten++]);

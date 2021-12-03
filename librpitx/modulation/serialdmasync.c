@@ -33,26 +33,26 @@
 #include "dma.h"
 #include "serialdmasync.h"
 
-void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput) {
+void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t sample_rate, int channel, uint32_t fifo_size, bool dualoutput) {
     *serialdmas = (serialdmasync_t*) malloc(sizeof(struct serialdmasync));
-    bufferdma_init(Channel, FifoSize, 1, 1);
+    bufferdma_init(channel, fifo_size, 1, 1);
     clkgpio_init(&((*serialdmas)->clkgpio));
     pwmgpio_init(&((*serialdmas)->pwmgpio));
 
     if (dualoutput) //Fixme if 2pin we want maybe 2*SRATE as it is distributed over 2 pin
     {
         pwmgpio_set_mode(&((*serialdmas)->pwmgpio), pwm2pin);
-        SampleRate *= 2;
+        sample_rate *= 2;
     } else {
         pwmgpio_set_mode(&((*serialdmas)->pwmgpio), pwm1pin);
     }
 
-    if (SampleRate > 250000) {
+    if (sample_rate > 250000) {
         pwmgpio_set_pll_number(&((*serialdmas)->pwmgpio), clk_plld, 1);
-        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), SampleRate);
+        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), sample_rate);
     } else {
         pwmgpio_set_pll_number(&((*serialdmas)->pwmgpio), clk_osc, 1);
-        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), SampleRate);
+        pwmgpio_set_frequency(&((*serialdmas)->pwmgpio), sample_rate);
     }
 
     pwmgpio_enablepwm(&((*serialdmas)->pwmgpio), 12, 0); // By default PWM on GPIO 12/pin 32
@@ -81,9 +81,9 @@ void serialdmasync_set_dma_algo(serialdmasync_t **serialdmas) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void serialdmasync_set_sample(serialdmasync_t **serialdmas, uint32_t Index, int Sample) {
-    Index = Index % buffersize;
-    sampletab[Index] = Sample;
+void serialdmasync_set_sample(serialdmasync_t **serialdmas, uint32_t index, int sample) {
+    index = index % buffersize;
+    sampletab[index] = sample;
 
-    bufferdma_PushSample(Index);
+    bufferdma_push_sample(index);
 }

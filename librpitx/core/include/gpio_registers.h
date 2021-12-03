@@ -240,31 +240,31 @@
 // #define XOSC_FREQUENCY 54000000
 
 // PAD GPIO (Amplitude)
-#define PADS_GPIO     (0x00100000)
-#define PADS_GPIO_LEN (0x40 / 4)
+#define PADS_GPIO       (0x00100000)
+#define PADS_GPIO_LEN   (0x40 / 4)
 
-#define PADS_GPIO_0 (0x2C / 4)
-#define PADS_GPIO_1 (0x30 / 4)
-#define PADS_GPIO_2 (0x34 / 4)
+#define PADS_GPIO_0     (0x2C / 4)
+#define PADS_GPIO_1     (0x30 / 4)
+#define PADS_GPIO_2     (0x34 / 4)
 
 // PWM GPIO
-#define PWM_BASE (0x0020C000)
-#define PWM_LEN  0x28
+#define PWM_BASE        (0x0020C000)
+#define PWM_LEN         0x28
 
-#define PWM_CTL  (0x00 / 4)
-#define PWM_DMAC (0x08 / 4)
-#define PWM_RNG1 (0x10 / 4)
-#define PWM_RNG2 (0x20 / 4)
-#define PWM_FIFO (0x18 / 4)
+#define PWM_CTL         (0x00 / 4)
+#define PWM_DMAC        (0x08 / 4)
+#define PWM_RNG1        (0x10 / 4)
+#define PWM_RNG2        (0x20 / 4)
+#define PWM_FIFO        (0x18 / 4)
 
-#define PWMCLK_CNTL (40) // Clk register
-#define PWMCLK_DIV  (41) // Clk register
+#define PWMCLK_CNTL     (40) // Clk register
+#define PWMCLK_DIV      (41) // Clk register
 
-#define PWMCTL_MSEN2 (1 << 15)
-#define PWMCTL_USEF2 (1 << 13)
-#define PWMCTL_RPTL2 (1 << 10)
-#define PWMCTL_MODE2 (1 << 9)
-#define PWMCTL_PWEN2 (1 << 8)
+#define PWMCTL_MSEN2    (1 << 15)
+#define PWMCTL_USEF2    (1 << 13)
+#define PWMCTL_RPTL2    (1 << 10)
+#define PWMCTL_MODE2    (1 << 9)
+#define PWMCTL_PWEN2    (1 << 8)
 
 #define PWMCTL_MSEN1    (1 << 7)
 #define PWMCTL_CLRF     (1 << 6)
@@ -277,20 +277,20 @@
 #define PWMDMAC_THRSHLD ((15 << 8) | (15 << 0))
 
 // PCM GPIO (I2S)
-#define PCM_BASE (0x00203000)
-#define PCM_LEN 0x24
+#define PCM_BASE        (0x00203000)
+#define PCM_LEN         0x24
 
-#define PCM_CS_A      (0x00 / 4)
-#define PCM_FIFO_A    (0x04 / 4)
-#define PCM_MODE_A    (0x08 / 4)
-#define PCM_RXC_A     (0x0c / 4)
-#define PCM_TXC_A     (0x10 / 4)
-#define PCM_DREQ_A    (0x14 / 4)
-#define PCM_INTEN_A   (0x18 / 4)
-#define PCM_INT_STC_A (0x1c / 4)
-#define PCM_GRAY      (0x20 / 4)
+#define PCM_CS_A        (0x00 / 4)
+#define PCM_FIFO_A      (0x04 / 4)
+#define PCM_MODE_A      (0x08 / 4)
+#define PCM_RXC_A       (0x0c / 4)
+#define PCM_TXC_A       (0x10 / 4)
+#define PCM_DREQ_A      (0x14 / 4)
+#define PCM_INTEN_A     (0x18 / 4)
+#define PCM_INT_STC_A   (0x1c / 4)
+#define PCM_GRAY        (0x20 / 4)
 
-#define PCMCLK_CNTL (38) // Clk register
-#define PCMCLK_DIV  (39) // Clk register
+#define PCMCLK_CNTL     (38) // Clk register
+#define PCMCLK_DIV      (39) // Clk register
 
 #endif

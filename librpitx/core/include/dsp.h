@@ -31,10 +31,6 @@
 #include <stdint.h>
 #include <complex.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 struct dsp {
       double prev_phase;
     uint32_t samplerate;
@@ -46,9 +42,5 @@ typedef struct dsp dsp_t;
 void dsp_init(dsp_t **dsp, uint32_t samplerate);
 void dsp_deinit(dsp_t **dsp);
 void dsp_pushsample(dsp_t **dsp, float _Complex sample);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* DSP_H_ */

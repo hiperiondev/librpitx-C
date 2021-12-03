@@ -42,9 +42,9 @@ struct serialdmasync {
 };
 typedef struct serialdmasync serialdmasync_t;
 
-void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t SampleRate, int Channel, uint32_t FifoSize, bool dualoutput);
+void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t sample_rate, int channel, uint32_t fifo_size, bool dualoutput);
 void serialdmasync_deinit(serialdmasync_t **serialdmas);
 void serialdmasync_set_dma_algo(serialdmasync_t **serialdmas);
-void serialdmasync_set_sample(serialdmasync_t **serialdmas, uint32_t Index, int Sample);
+void serialdmasync_set_sample(serialdmasync_t **serialdmas, uint32_t index, int sample);
 
 #endif

@@ -32,16 +32,16 @@
 static int librpitx_debug_level = 0;
 int librpitx_debug_id = 1;
 
-void librpitx_dbg_setlevel(int Level) {
-    librpitx_debug_level = Level;
+void librpitx_dbg_setlevel(int level) {
+    librpitx_debug_level = level;
 }
 
 int librpitx_dbg_getlevel() {
     return librpitx_debug_level;
 }
 
-void librpitx_dbg_printf(int Level, const char *fmt, ...) {
-    if (Level <= librpitx_debug_level) {
+void librpitx_dbg_printf(int level, const char *fmt, ...) {
+    if (level <= librpitx_debug_level) {
         bool debug_id_m = false;
         va_list args;
         va_start(args, fmt);

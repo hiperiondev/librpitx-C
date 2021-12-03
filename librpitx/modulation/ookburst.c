@@ -34,31 +34,31 @@
 #include "gpio.h"
 #include "ookburst.h"
 
-void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp) {
+void ookburst_init(ookburst_t **ookbrst, uint64_t tune_frequency, float symbol_rate, int channel, uint32_t fifo_size, size_t upsample, float ratio_ramp) {
     *ookbrst = (ookburst_t*) malloc(sizeof(struct ookburst));
-    bufferdma_init(Channel, FifoSize * upsample + 2, 2, 1);
+    bufferdma_init(channel, fifo_size * upsample + 2, 2, 1);
     clkgpio_init(&((*ookbrst)->clkgpio));
     pwmgpio_init(&((*ookbrst)->pwmgpio));
     pcmgpio_init(&((*ookbrst)->pcmgpio));
-    (*ookbrst)->SR_upsample = upsample;
-    (*ookbrst)->Ramp = 0.0;
+    (*ookbrst)->sr_upsample = upsample;
+    (*ookbrst)->ramp = 0.0;
 
     clkgpio_set_advanced_pll_mode(&((*ookbrst)->clkgpio), true);
-    clkgpio_set_center_frequency(&((*ookbrst)->clkgpio), TuneFrequency, 0); // Bandwidth is 0 because frequency always the same
+    clkgpio_set_center_frequency(&((*ookbrst)->clkgpio), tune_frequency, 0); // Bandwidth is 0 because frequency always the same
     clkgpio_set_frequency(&((*ookbrst)->clkgpio), 0);
 
     (*ookbrst)->syncwithpwm = false;
-    (*ookbrst)->Ramp = (*ookbrst)->SR_upsample * RatioRamp; //Ramp time
+    (*ookbrst)->ramp = (*ookbrst)->sr_upsample * ratio_ramp; //Ramp time
 
     if ((*ookbrst)->syncwithpwm) {
         pwmgpio_set_pll_number(&((*ookbrst)->pwmgpio), clk_plld, 1);
-        pwmgpio_set_frequency(&((*ookbrst)->pwmgpio), SymbolRate * (float) upsample);
+        pwmgpio_set_frequency(&((*ookbrst)->pwmgpio), symbol_rate * (float) upsample);
     } else {
         pcmgpio_set_pll_number(&((*ookbrst)->pcmgpio), clk_plld, 1);
-        pcmgpio_set_frequency(&((*ookbrst)->pcmgpio), SymbolRate * (float) upsample);
+        pcmgpio_set_frequency(&((*ookbrst)->pcmgpio), symbol_rate * (float) upsample);
     }
 
-    (*ookbrst)->Originfsel = (*ookbrst)->clkgpio->gengpio->h_gpio->gpioreg[GPFSEL0];
+    (*ookbrst)->originfsel = (*ookbrst)->clkgpio->gengpio->h_gpio->gpioreg[GPFSEL0];
     ookburst_set_dma_algo(ookbrst);
 }
 
@@ -90,12 +90,12 @@ void ookburst_set_dma_algo(ookburst_t **ookburst) {
     (*ookburst)->lastcbp = cbp;
 
 // Last CBP before stopping : disable output
-    sampletab[buffersize * registerbysample - 1] = ((*ookburst)->Originfsel & ~(7 << 12)) | (0 << 12); //Disable Clk
+    sampletab[buffersize * registerbysample - 1] = ((*ookburst)->originfsel & ~(7 << 12)) | (0 << 12); //Disable Clk
     dma_set_easy_cb(cbp, buffersize * registerbysample - 1, dma_fsel, 1);
     cbp->next = 0; // Stop DMA
 }
-void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t Size) {
-    if (Size > buffersize - 2) {
+void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *symbols, uint32_t size) {
+    if (size > buffersize - 2) {
         librpitx_dbg_printf(1, "Buffer overflow\n");
         return;
     }
@@ -103,22 +103,22 @@ void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t
     dma_cb_t *cbp = cbarray;
     cbp++; // Skip the first which is the Fiiling of Fifo
 
-    for (unsigned i = 0; i < Size; i++) {
-        for (size_t j = 0; j < (*ookbrst)->SR_upsample - (*ookbrst)->Ramp; j++) {
-            sampletab[i * (*ookbrst)->SR_upsample + j] =
-                    (Symbols[i] == 0) ? (((*ookbrst)->Originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->Originfsel & ~(7 << 12)) | (4 << 12));
+    for (unsigned i = 0; i < size; i++) {
+        for (size_t j = 0; j < (*ookbrst)->sr_upsample - (*ookbrst)->ramp; j++) {
+            sampletab[i * (*ookbrst)->sr_upsample + j] =
+                    (symbols[i] == 0) ? (((*ookbrst)->originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->originfsel & ~(7 << 12)) | (4 << 12));
             cbp++; //SKIP FSEL CB
             cbp->next = dma_mem_virt_to_phys(cbp + 1);
             cbp++;
         }
-        for (size_t j = 0; j < (*ookbrst)->Ramp; j++) {
-            if (i < Size - 1) {
-                sampletab[i * (*ookbrst)->SR_upsample + j + (*ookbrst)->SR_upsample - (*ookbrst)->Ramp] =
-                        (Symbols[i] == 0) ? (((*ookbrst)->Originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->Originfsel & ~(7 << 12)) | (4 << 12));
+        for (size_t j = 0; j < (*ookbrst)->ramp; j++) {
+            if (i < size - 1) {
+                sampletab[i * (*ookbrst)->sr_upsample + j + (*ookbrst)->sr_upsample - (*ookbrst)->ramp] =
+                        (symbols[i] == 0) ? (((*ookbrst)->originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->originfsel & ~(7 << 12)) | (4 << 12));
 
             } else {
-                sampletab[i * (*ookbrst)->SR_upsample + j + (*ookbrst)->SR_upsample - (*ookbrst)->Ramp] =
-                        (Symbols[i] == 0) ? (((*ookbrst)->Originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->Originfsel & ~(7 << 12)) | (4 << 12));
+                sampletab[i * (*ookbrst)->sr_upsample + j + (*ookbrst)->sr_upsample - (*ookbrst)->ramp] =
+                        (symbols[i] == 0) ? (((*ookbrst)->originfsel & ~(7 << 12)) | (0 << 12)) : (((*ookbrst)->originfsel & ~(7 << 12)) | (4 << 12));
             }
 
             cbp++; //SKIP FREQ CB
@@ -141,11 +141,11 @@ void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t
 
 //****************************** OOK BURST TIMING *****************************************
 // SampleRate is set to 0.1MHZ,means 10us granularity, MaxMessageDuration in us
-void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration) {
+void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t tune_frequency, size_t max_message_duration) {
     *ookbursttm = (ookbursttiming_t*) malloc(sizeof(struct ookbursttiming));
-    ookburst_init(ookbrst, TuneFrequency, 1e5, 14, MaxMessageDuration / 10, 1, 0.0);
-    (*ookbursttm)->m_MaxMessage = MaxMessageDuration;
-    (*ookbursttm)->ookrenderbuffer = (unsigned char*) malloc(sizeof(unsigned char) * (*ookbursttm)->m_MaxMessage);
+    ookburst_init(ookbrst, tune_frequency, 1e5, 14, max_message_duration / 10, 1, 0.0);
+    (*ookbursttm)->m_max_message = max_message_duration;
+    (*ookbursttm)->ookrenderbuffer = (unsigned char*) malloc(sizeof(unsigned char) * (*ookbursttm)->m_max_message);
 }
 
 void ookbursttiming_deinit(ookbursttiming_t **ookbursttm) {
@@ -154,13 +154,13 @@ void ookbursttiming_deinit(ookbursttiming_t **ookbursttm) {
     free(*ookbursttm);
 }
 
-void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *TabSymbols, size_t Size) {
+void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *tab_symbols, size_t size) {
     size_t n = 0;
-    for (size_t i = 0; i < Size; i++) {
-        for (size_t j = 0; j < TabSymbols[i].duration / 10; j++) {
-            (*ookbursttm)->ookrenderbuffer[n++] = TabSymbols[i].value;
-            if (n >= (*ookbursttm)->m_MaxMessage) {
-                librpitx_dbg_printf(1, "OOK Message too long abort time(%d/%d)\n", n, (*ookbursttm)->m_MaxMessage);
+    for (size_t i = 0; i < size; i++) {
+        for (size_t j = 0; j < tab_symbols[i].duration / 10; j++) {
+            (*ookbursttm)->ookrenderbuffer[n++] = tab_symbols[i].value;
+            if (n >= (*ookbursttm)->m_max_message) {
+                librpitx_dbg_printf(1, "OOK Message too long abort time(%d/%d)\n", n, (*ookbursttm)->m_max_message);
                 return;
             }
         }

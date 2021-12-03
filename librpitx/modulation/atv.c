@@ -40,34 +40,34 @@
 //#define CB_ATV (6 * 4 + 5 * 4 + 5 * 4 + (304 + 305) * (4 + 52 * 2))
 #define CB_ATV 70000
 
-void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines) {
+void atv_init(atv_t **atvl, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t lines) {
 
     *atvl = (atv_t*) malloc(sizeof(struct atv));
-    dma_init(Channel, CB_ATV, Lines * 52 + 3);
+    dma_init(channel, CB_ATV, lines * 52 + 3);
     clkgpio_init(&((*atvl)->clkgpio));
     pwmgpio_init(&((*atvl)->pwmgpio));
     pcmgpio_init(&((*atvl)->pcmgpio));
 // Need 2 more bytes for 0 and 1
 // Need 6 CB more for sync, if so as 2CBby sample : 3
 
-    (*atvl)->SampleRate = SR;
-    (*atvl)->tunefreq = TuneFrequency;
+    (*atvl)->sample_rate = sr;
+    (*atvl)->tunefreq = tune_frequency;
     clkgpio_set_advanced_pll_mode(&((*atvl)->clkgpio), true);
-    clkgpio_set_center_frequency(&((*atvl)->clkgpio), TuneFrequency, (*atvl)->SampleRate);
+    clkgpio_set_center_frequency(&((*atvl)->clkgpio), tune_frequency, (*atvl)->sample_rate);
     clkgpio_set_frequency(&((*atvl)->clkgpio), 0);
     clkgpio_enableclk(&((*atvl)->clkgpio), 4); // GPIO 4 CLK by default
     (*atvl)->syncwithpwm = true;
 
     if ((*atvl)->syncwithpwm) {
         pwmgpio_set_pll_number(&((*atvl)->pwmgpio), clk_plld, 1);
-        pwmgpio_set_frequency(&((*atvl)->pwmgpio), (*atvl)->SampleRate);
+        pwmgpio_set_frequency(&((*atvl)->pwmgpio), (*atvl)->sample_rate);
     } else {
         pcmgpio_set_pll_number(&((*atvl)->pcmgpio), clk_plld, 1);
-        pcmgpio_set_frequency(&((*atvl)->pcmgpio), (*atvl)->SampleRate);
+        pcmgpio_set_frequency(&((*atvl)->pcmgpio), (*atvl)->sample_rate);
     }
 
     padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
-    (*atvl)->Originfsel = pad->h_gpio->gpioreg[PADS_GPIO_0];
+    (*atvl)->originfsel = pad->h_gpio->gpioreg[PADS_GPIO_0];
 
     usermem[(usermemsize - 2)] = (0x5A << 24) + (1 & 0x7) + (1 << 4) + (0 << 3); // Amp 1
     usermem[(usermemsize - 1)] = (0x5A << 24) + (0 & 0x7) + (1 << 4) + (0 << 3); // Amp 0
@@ -80,7 +80,7 @@ void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, ui
 void atv_deinit(atv_t **atvl) {
     clkgpio_disableclk(&((*atvl)->clkgpio), 4);
     padgpio_t *pad = (padgpio_t*) malloc(sizeof(struct padgpio));
-    pad->h_gpio->gpioreg[PADS_GPIO_0] = (*atvl)->Originfsel;
+    pad->h_gpio->gpioreg[PADS_GPIO_0] = (*atvl)->originfsel;
 
     clkgpio_deinit(&((*atvl)->clkgpio));
     pwmgpio_deinit(&((*atvl)->pwmgpio));
@@ -176,10 +176,10 @@ void atv_set_dma_algo(atv_t **atvl) {
     librpitx_dbg_printf(1, "Last cbp :  %d \n", ((uintptr_t) (cbp) - (uintptr_t) (cbarray)) / sizeof(dma_cb_t));
 }
 
-void atv_set_frame(atv_t **atvl, unsigned char *Luminance, size_t Lines) {
-    for (size_t i = 0; i < Lines; i++) {
+void atv_set_frame(atv_t **atvl, unsigned char *luminance, size_t lines) {
+    for (size_t i = 0; i < lines; i++) {
         for (size_t x = 0; x < 52; x++) {
-            int AmplitudePAD = (Luminance[i * 52 + x] / 255.0) * 6.0 + 1; //1 to 7
+            int AmplitudePAD = (luminance[i * 52 + x] / 255.0) * 6.0 + 1; //1 to 7
 
             if (i % 2 == 0)                                                                          // First field
                 usermem[i * 52 / 2 + x] = (0x5A << 24) + (AmplitudePAD & 0x7) + (1 << 4) + (0 << 3); // Amplitude PAD

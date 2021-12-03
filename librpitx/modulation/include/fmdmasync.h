@@ -28,9 +28,9 @@
 #ifndef MODULATION_FMDMASYNC_H_
 #define MODULATION_FMDMASYNC_H_
 
-void fmdmasync_init(int Channel, uint32_t FifoSize);
+void fmdmasync_init(int channel, uint32_t fifo_size);
 void fmdmasync_deinit(void);
 void fmdmasync_set_dma_algo(void);
-void fmdmasync_fill_memory(uint32_t FreqDivider, uint32_t FreqFractionnal);
+void fmdmasync_fill_memory(uint32_t freq_divider, uint32_t freq_fractionnal);
 
 #endif

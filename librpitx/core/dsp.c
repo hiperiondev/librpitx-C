@@ -88,12 +88,12 @@ inline double dsp_angleDiff(double a, double b) {
 	return dif - M_PI;
 }
 
-inline double dsp_unwrap(double previousAngle, double newAngle) {
+inline double dsp_unwrap(double previous_angle, double new_angle) {
 	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
 	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
 
-	return previousAngle - dsp_angleDiff(newAngle, dsp_angleConv(previousAngle));
+	return previous_angle - dsp_angleDiff(new_angle, dsp_angleConv(previous_angle));
 }
 
 int dsp_arctan2(int y, int x) { // Should be replaced with fast_atan2 from rtl_fm

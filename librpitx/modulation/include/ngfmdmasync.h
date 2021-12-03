@@ -37,7 +37,7 @@
 struct ngfmdmasync {
      uint64_t tunefreq;
          bool syncwithpwm;
-     uint32_t SampleRate;
+     uint32_t sample_rate;
 
     clkgpio_t *clkgpio;
     pwmgpio_t *pwmgpio;
@@ -45,11 +45,11 @@ struct ngfmdmasync {
 };
 typedef struct ngfmdmasync ngfmdmasync_t;
 
-void ngfmdmasync_init(ngfmdmasync_t **ngfm,uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm);
+void ngfmdmasync_init(ngfmdmasync_t **ngfm,uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size, bool use_pwm);
 void ngfmdmasync_deinit(ngfmdmasync_t **ngfm);
 void ngfmdmasync_set_dma_algo(ngfmdmasync_t **ngfm);
-void ngfmdmasync_set_phase(ngfmdmasync_t **ngfm,bool inversed);
-void ngfmdmasync_set_frequency_sample(ngfmdmasync_t **ngfm,uint32_t Index, float Frequency);
-void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm,float *sample, size_t Size);
+void ngfmdmasync_set_phase(ngfmdmasync_t **ngfm, bool inversed);
+void ngfmdmasync_set_frequency_sample(ngfmdmasync_t **ngfm,uint32_t index, float frequency);
+void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm,float *sample, size_t size);
 
 #endif

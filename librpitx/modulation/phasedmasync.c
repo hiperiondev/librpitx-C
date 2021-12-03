@@ -38,54 +38,54 @@
 #include "phasedmasync.h"
 
 //Stable tune for this pwm mode is up to 90MHZ
-void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize) {
+void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t tune_frequency, uint32_t sample_rate_in, int number_of_phase, int channel, uint32_t fifo_size) {
     *phasedmas = (phasedmasync_t*) malloc(sizeof(struct phasedmasync));
-    bufferdma_init(Channel, FifoSize, 2, 1); // Number of phase between 2 and 16
+    bufferdma_init(channel, fifo_size, 2, 1); // Number of phase between 2 and 16
     clkgpio_init(&((*phasedmas)->clkgpio));
     pwmgpio_init(&((*phasedmas)->pwmgpio));
     pcmgpio_init(&((*phasedmas)->pcmgpio));
     generalgpio_init(&((*phasedmas)->gengpio));
 
-    (*phasedmas)->SampleRate = SampleRateIn;
+    (*phasedmas)->sample_rate = sample_rate_in;
     pwmgpio_set_mode(&((*phasedmas)->pwmgpio), pwm1pinrepeat);
     pwmgpio_set_pll_number(&((*phasedmas)->pwmgpio), clk_pllc, 0);
 
-    (*phasedmas)->tunefreq = TuneFrequency * NumberOfPhase;
+    (*phasedmas)->tunefreq = tune_frequency * number_of_phase;
 #define MAX_PWM_RATE 360000000
     if ((*phasedmas)->tunefreq > MAX_PWM_RATE)
-        librpitx_dbg_printf(1, "Critical error : Frequency to high > %d\n", MAX_PWM_RATE / NumberOfPhase);
-    if ((NumberOfPhase == 2) || (NumberOfPhase == 4) || (NumberOfPhase == 8) || (NumberOfPhase == 16) || (NumberOfPhase == 32))
-        (*phasedmas)->NumbPhase = NumberOfPhase;
+        librpitx_dbg_printf(1, "Critical error : Frequency to high > %d\n", MAX_PWM_RATE / number_of_phase);
+    if ((number_of_phase == 2) || (number_of_phase == 4) || (number_of_phase == 8) || (number_of_phase == 16) || (number_of_phase == 32))
+        (*phasedmas)->numb_phase = number_of_phase;
     else
-        librpitx_dbg_printf(1, "PWM critical error: %d is not a legal number of phase\n", NumberOfPhase);
+        librpitx_dbg_printf(1, "PWM critical error: %d is not a legal number of phase\n", number_of_phase);
     clkgpio_set_advanced_pll_mode(&((*phasedmas)->clkgpio), true);
 
     clkgpio_compute_best_lo(&((*phasedmas)->clkgpio), (*phasedmas)->tunefreq, 0); // compute PWM divider according to MasterPLL clkgpio_PllFixDivider
-    double FloatMult = ((double) ((*phasedmas)->tunefreq) * (*phasedmas)->clkgpio->PllFixDivider) / (double) ((*phasedmas)->pwmgpio->h_gpio->XOSC_FREQUENCY);
+    double FloatMult = ((double) ((*phasedmas)->tunefreq) * (*phasedmas)->clkgpio->pll_fix_divider) / (double) ((*phasedmas)->pwmgpio->h_gpio->xosc_frequency);
     uint32_t freqctl = FloatMult * ((double) (1 << 20));
     int IntMultiply = freqctl >> 20; // Need to be calculated to have a center frequency
     freqctl &= 0xFFFFF; // Fractionnal is 20bits
     uint32_t FracMultiply = freqctl & 0xFFFFF;
     clkgpio_set_master_mult_frac(&((*phasedmas)->clkgpio), IntMultiply, FracMultiply);
-    librpitx_dbg_printf(1, "PWM Mult %d Frac %d Div %d\n", IntMultiply, FracMultiply, (*phasedmas)->clkgpio->PllFixDivider);
+    librpitx_dbg_printf(1, "PWM Mult %d Frac %d Div %d\n", IntMultiply, FracMultiply, (*phasedmas)->clkgpio->pll_fix_divider);
 
-    (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_DIV] = 0x5A000000 | (((*phasedmas)->clkgpio->PllFixDivider) << 12) | (*phasedmas)->pwmgpio->pllnumber; // PWM clock input divider
+    (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_DIV] = 0x5A000000 | (((*phasedmas)->clkgpio->pll_fix_divider) << 12) | (*phasedmas)->pwmgpio->pllnumber; // PWM clock input divider
     usleep(100);
 
-    (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_CNTL] = 0x5A000000 | ((*phasedmas)->pwmgpio->Mash << 9) | (((*phasedmas)->clkgpio->PllFixDivider) << 12)
+    (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_CNTL] = 0x5A000000 | ((*phasedmas)->pwmgpio->mash << 9) | (((*phasedmas)->clkgpio->pll_fix_divider) << 12)
             | (*phasedmas)->pwmgpio->pllnumber | (1 << 4); //4 is START CLK
     usleep(100);
-    pwmgpio_set_prediv(&((*phasedmas)->pwmgpio), NumberOfPhase);	//Originaly 32 but To minimize jitter , we set minimal buffer to repeat
+    pwmgpio_set_prediv(&((*phasedmas)->pwmgpio), number_of_phase);	//Originaly 32 but To minimize jitter , we set minimal buffer to repeat
 
     pwmgpio_enablepwm(&((*phasedmas)->pwmgpio), 12, 0); // By default PWM on GPIO 12/pin 32
 
     pcmgpio_set_pll_number(&((*phasedmas)->pcmgpio), clk_plld, 1); // Clk for Samplerate by PCM
-    pcmgpio_set_frequency(&((*phasedmas)->pcmgpio), (*phasedmas)->SampleRate);
+    pcmgpio_set_frequency(&((*phasedmas)->pcmgpio), (*phasedmas)->sample_rate);
 
     phasedmasync_set_dma_algo(phasedmas);
 
     uint32_t ZeroPhase = 0;
-    switch ((*phasedmas)->NumbPhase) {
+    switch ((*phasedmas)->numb_phase) {
         case 2:
             ZeroPhase = 0xAAAAAAAA;
             break; //1,0,1,0 1,0,1,0
@@ -106,8 +106,8 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint3
             break;
     }
 
-    for (int i = 0; i < (*phasedmas)->NumbPhase; i++) {
-        (*phasedmas)->TabPhase[i] = ZeroPhase;
+    for (int i = 0; i < (*phasedmas)->numb_phase; i++) {
+        (*phasedmas)->tab_phase[i] = ZeroPhase;
         //dbg_printf(1,"Phase[%d]=%x\n",i,TabPhase[i]);
         ZeroPhase = (ZeroPhase << 1) | (ZeroPhase >> 31);
     }
@@ -150,15 +150,15 @@ void phasedmasync_set_dma_algo(phasedmasync_t **phasedmas) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t Index, int Phase) {
-    Index = Index % buffersize;
-    Phase = (Phase + (*phasedmas)->NumbPhase) % (*phasedmas)->NumbPhase;
-    sampletab[Index] = (*phasedmas)->TabPhase[Phase];
-    bufferdma_PushSample(Index);
+void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t index, int phase) {
+    index = index % buffersize;
+    phase = (phase + (*phasedmas)->numb_phase) % (*phasedmas)->numb_phase;
+    sampletab[index] = (*phasedmas)->tab_phase[phase];
+    bufferdma_push_sample(index);
 
 }
 
-void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t Size) {
+void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t size) {
     size_t NbWritten = 0;
     //int OSGranularity = 100;
     long int start_time;
@@ -166,14 +166,14 @@ void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, siz
     struct timespec gettime_now;
     int debug = 1;
 
-    while (NbWritten < Size) {
+    while (NbWritten < size) {
         if (debug > 0) {
             clock_gettime(CLOCK_REALTIME, &gettime_now);
             start_time = gettime_now.tv_nsec;
         }
-        int Available = bufferdma_GetBufferAvailable();
+        int Available = bufferdma_get_buffer_available();
         //printf("Available before=%d\n",Available);
-        int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (float) (*phasedmas)->SampleRate/*-OSGranularity*/; // Sleep for theorically fill 3/4 of Fifo
+        int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (float) (*phasedmas)->sample_rate/*-OSGranularity*/; // Sleep for theorically fill 3/4 of Fifo
         if (TimeToSleep > 0) {
             //dbg_printf(1,"buffer size %d Available %d SampleRate %d Sleep %d\n",buffersize,Available,SampleRate,TimeToSleep);
             usleep(TimeToSleep);
@@ -190,10 +190,10 @@ void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, siz
             //dbg_printf(1,"Available %d Measure samplerate=%d\n",GetBufferAvailable(),(int)((GetBufferAvailable()-Available)*1e9/time_difference));
             debug--;
         }
-        Available = bufferdma_GetBufferAvailable();
+        Available = bufferdma_get_buffer_available();
 
-        int Index = bufferdma_GetUserMemIndex();
-        int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;
+        int Index = bufferdma_get_user_mem_index();
+        int ToWrite = ((int) size - (int) NbWritten) < Available ? size - NbWritten : Available;
         //printf("Available after=%d Timetosleep %d To Write %d\n",Available,TimeToSleep,ToWrite);
         for (int i = 0; i < ToWrite; i++) {
 

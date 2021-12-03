@@ -28,19 +28,11 @@
 #ifndef CORE_UTIL_H_
 #define CORE_UTIL_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdarg.h>
 
-void librpitx_dbg_setlevel(int Level);
+void librpitx_dbg_setlevel(int level);
  int librpitx_dbg_getlevel();
-void librpitx_dbg_printf(int Level, const char *fmt, ...);
-
-#ifdef __cplusplus
-}
-#endif
+void librpitx_dbg_printf(int level, const char *fmt, ...);
 
 #endif

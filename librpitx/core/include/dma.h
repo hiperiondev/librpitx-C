@@ -28,10 +28,6 @@
 #ifndef DMA_H_
 #define DMA_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include "gpio_enum.h"
 #include "gpio.h"
@@ -40,23 +36,19 @@ typedef struct {
     uint32_t info, src, dst, length, stride, next, pad[2];
 } dma_cb_t; // 8*4=32 bytes
 
-//class dma
-//public:
 extern dmagpio_t *dmagpio;
 extern  dma_cb_t *cbarray;
 extern  uint32_t cbsize;
 extern  uint32_t *usermem;
 extern  uint32_t usermemsize;
-extern      bool Started;
+extern      bool started;
 
-//class bufferdma: public dma
-//public:
-extern uint32_t buffersize;
-extern uint32_t cbbysample;
-extern uint32_t registerbysample;
-extern uint32_t *sampletab;
+extern  uint32_t buffersize;
+extern  uint32_t cbbysample;
+extern  uint32_t registerbysample;
+extern  uint32_t *sampletab;
 
-    void dma_init(int Channel, uint32_t CBSize, uint32_t UserMemSize);
+    void dma_init(int channel, uint32_t cb_size, uint32_t user_mem_size);
     void dma_deinit(void);
     void dma_get_rpi_info(void);
 uint32_t dma_mem_virt_to_phys(volatile void *virt);
@@ -69,15 +61,11 @@ uint32_t dma_mem_phys_to_virt(volatile uint32_t phys);
     bool dma_set_cb(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uint32_t repeat);
     bool dma_set_easy_cb(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t repeat);
 
-    void bufferdma_init(int Channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample);
+    void bufferdma_init(int channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample);
     void bufferdma_deinit(void);
     void bufferdma_set_dma_algo(void);
-     int bufferdma_GetBufferAvailable(void);
-     int bufferdma_GetUserMemIndex(void);
-     int bufferdma_PushSample(int Index);
-
-#ifdef __cplusplus
-}
-#endif
+     int bufferdma_get_buffer_available(void);
+     int bufferdma_get_user_mem_index(void);
+     int bufferdma_push_sample(int index);
 
 #endif /* DMA_H_ */

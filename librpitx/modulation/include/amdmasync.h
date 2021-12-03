@@ -45,11 +45,11 @@ struct amdmasync {
 };
 typedef struct amdmasync amdmasync_t;
 
-void amdmasync_init(amdmasync_t **amdma, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize);
+void amdmasync_init(amdmasync_t **amdma, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size);
 void amdmasync_deinit(amdmasync_t **amdma);
 void amdmasync_set_dma_algo(amdmasync_t **amdma);
 
-void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t Index, float Amplitude);
-void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t Size);
+void amdmasync_set_am_sample(amdmasync_t **amdma, uint32_t index, float amplitude);
+void amdmasync_set_am_samples(amdmasync_t **amdma, float *sample, size_t size);
 
 #endif

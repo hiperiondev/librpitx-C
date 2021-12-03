@@ -28,16 +28,12 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
 struct gpio {
                  bool pi_is_2711;
-             uint64_t XOSC_FREQUENCY;
+             uint64_t xosc_frequency;
     volatile uint32_t *gpioreg;
              uint32_t gpiolen;
 };
@@ -57,13 +53,13 @@ struct clkgpio {
            gpio_t *h_gpio;
 
               int pllnumber;
-              int Mash;
-         uint64_t Pllfrequency;
-             bool ModulateFromMasterPLL;
-         uint64_t CentralFrequency;
+              int mash;
+         uint64_t pll_frequency;
+             bool modulate_from_master_pll;
+         uint64_t central_frequency;
     generalgpio_t *gengpio;
            double clk_ppm;
-              int PllFixDivider;
+              int pll_fix_divider;
 };
 typedef struct clkgpio clkgpio_t;
 
@@ -72,11 +68,11 @@ struct pwmgpio {
 
         clkgpio_t *clk;
               int pllnumber;
-              int Mash;
-              int Prediv; // Range of PWM
-         uint64_t Pllfrequency;
-             bool ModulateFromMasterPLL;
-              int ModePwm;
+              int mash;
+              int prediv; // Range of PWM
+         uint64_t pll_frequency;
+             bool modulate_from_master_pll;
+              int mode_pwm;
     generalgpio_t *gengpio;
 };
 typedef struct pwmgpio pwmgpio_t;
@@ -86,9 +82,9 @@ struct pcmgpio {
 
     clkgpio_t *clk;
           int pllnumber;
-          int Mash;
-          int Prediv; // Range of PCM
-     uint64_t Pllfrequency;
+          int mash;
+          int prediv; // Range of PCM
+     uint64_t pll_frequency;
 };
 typedef struct pcmgpio pcmgpio_t;
 
@@ -106,19 +102,19 @@ uint32_t gpio_get_peripheral_base(gpio_t **gpio);
 
     void clkgpio_init(clkgpio_t **clkgpio);
     void clkgpio_deinit(clkgpio_t **clkgpio);
-     int clkgpio_set_pll_number(clkgpio_t **clkgpio, int PllNo, int MashType);
-uint64_t clkgpio_get_pll_frequency(clkgpio_t **clkgpio, int PllNo);
-     int clkgpio_set_clk_div_frac(clkgpio_t **clkgpio, uint32_t Div, uint32_t Frac);
-     int clkgpio_set_master_mult_frac(clkgpio_t **clkgpio, uint32_t Mult, uint32_t Frac);
-     int clkgpio_set_frequency(clkgpio_t **clkgpio, double Frequency);
-uint32_t clkgpio_get_master_frac(clkgpio_t **clkgpio, double Frequency);
-     int clkgpio_compute_best_lo(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth);
+     int clkgpio_set_pll_number(clkgpio_t **clkgpio, int pll_no, int mash_type);
+uint64_t clkgpio_get_pll_frequency(clkgpio_t **clkgpio, int pll_no);
+     int clkgpio_set_clk_div_frac(clkgpio_t **clkgpio, uint32_t div, uint32_t frac);
+     int clkgpio_set_master_mult_frac(clkgpio_t **clkgpio, uint32_t mult, uint32_t frac);
+     int clkgpio_set_frequency(clkgpio_t **clkgpio, double frequency);
+uint32_t clkgpio_get_master_frac(clkgpio_t **clkgpio, double frequency);
+     int clkgpio_compute_best_lo(clkgpio_t **clkgpio, uint64_t frequency, int bandwidth);
   double clkgpio_GetFrequencyResolution(clkgpio_t **clkgpio);
-  double clkgpio_get_real_frequency(clkgpio_t **clkgpio, double Frequency);
-     int clkgpio_set_center_frequency(clkgpio_t **clkgpio, uint64_t Frequency, int Bandwidth);
+  double clkgpio_get_real_frequency(clkgpio_t **clkgpio, double frequency);
+     int clkgpio_set_center_frequency(clkgpio_t **clkgpio, uint64_t frequency, int bandwidth);
     void clkgpio_set_phase(clkgpio_t **clkgpio, bool inversed);
-    void clkgpio_set_advanced_pll_mode(clkgpio_t **clkgpio, bool Advanced);
-    void clkgpio_set_pll_master_loop(clkgpio_t **clkgpio, int Ki, int Kp, int Ka);
+    void clkgpio_set_advanced_pll_mode(clkgpio_t **clkgpio, bool advanced);
+    void clkgpio_set_pll_master_loop(clkgpio_t **clkgpio, int ki, int kp, int ka);
     void clkgpio_print_clock_tree(clkgpio_t **clkgpio);
     void clkgpio_enableclk(clkgpio_t **clkgpio, int gpio);
     void clkgpio_disableclk(clkgpio_t **clkgpio, int gpio);
@@ -132,28 +128,24 @@ uint32_t clkgpio_get_master_frac(clkgpio_t **clkgpio, double Frequency);
 
     void pwmgpio_init(pwmgpio_t **pwmgpio);
     void pwmgpio_deinit(pwmgpio_t **pwmgpio);
-    void pwmgpio_enablepwm(pwmgpio_t **pwmgpio, int gpio, int PwmNumber);
+    void pwmgpio_enablepwm(pwmgpio_t **pwmgpio, int gpio, int pwm_number);
     void pwmgpio_disablepwm(pwmgpio_t **pwmgpio, int gpio);
-     int pwmgpio_set_pll_number(pwmgpio_t **pwmgpio, int PllNo, int MashType);
-uint64_t pwmgpio_get_pll_frequency(pwmgpio_t **pwmgpio, int PllNo);
-     int pwmgpio_set_frequency(pwmgpio_t **pwmgpio, uint64_t Frequency);
-    void pwmgpio_set_mode(pwmgpio_t **pwmgpio, int Mode);
+     int pwmgpio_set_pll_number(pwmgpio_t **pwmgpio, int pll_no, int mash_type);
+uint64_t pwmgpio_get_pll_frequency(pwmgpio_t **pwmgpio, int pll_no);
+     int pwmgpio_set_frequency(pwmgpio_t **pwmgpio, uint64_t frequency);
+    void pwmgpio_set_mode(pwmgpio_t **pwmgpio, int mode);
      int pwmgpio_set_prediv(pwmgpio_t **pwmgpio, int predivisor);
 
     void pcmgpio_init(pcmgpio_t **pcmgpio);
     void pcmgpio_deinit(pcmgpio_t **pcmgpio);
-     int pcmgpio_set_pll_number(pcmgpio_t **pcmgpio, int PllNo, int MashType);
-uint64_t pcmgpio_get_pll_frequency(pcmgpio_t **pcmgpio, int PllNo);
-     int pcmgpio_compute_prediv(pcmgpio_t **pcmgpio, uint64_t Frequency);
-     int pcmgpio_set_frequency(pcmgpio_t **pcmgpio, uint64_t Frequency);
+     int pcmgpio_set_pll_number(pcmgpio_t **pcmgpio, int pll_no, int mash_type);
+uint64_t pcmgpio_get_pll_frequency(pcmgpio_t **pcmgpio, int pll_no);
+     int pcmgpio_compute_prediv(pcmgpio_t **pcmgpio, uint64_t frequency);
+     int pcmgpio_set_frequency(pcmgpio_t **pcmgpio, uint64_t frequency);
      int pcmgpio_set_prediv(pcmgpio_t **pcmgpio, int predivisor);
 
     void padgpio_init(padgpio_t **padgpio);
     void padgpio_deinit(padgpio_t **padgpio);
      int padgpio_setlevel(gpio_t **gpio, int level);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GPIO_H_ */

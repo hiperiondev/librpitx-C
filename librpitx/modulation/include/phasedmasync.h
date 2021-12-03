@@ -32,9 +32,9 @@
 
 struct phasedmasync {
          uint64_t tunefreq;
-              int NumbPhase; // = 2;
-         uint32_t SampleRate;
-         uint32_t TabPhase[32]; //32 is Max Phase
+              int numb_phase; // = 2;
+         uint32_t sample_rate;
+         uint32_t tab_phase[32]; //32 is Max Phase
 
         clkgpio_t *clkgpio;
         pwmgpio_t *pwmgpio;
@@ -43,10 +43,10 @@ struct phasedmasync {
 };
 typedef struct phasedmasync phasedmasync_t;
 
-void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t TuneFrequency, uint32_t SampleRateIn, int NumberOfPhase, int Channel, uint32_t FifoSize);
+void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t tune_frequency, uint32_t sample_rate_in, int number_of_phase, int channel, uint32_t fifo_size);
 void phasedmasync_deinit(phasedmasync_t **phasedmas);
 void phasedmasync_set_dma_algo(phasedmasync_t **phasedmas);
-void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t Index, int Phase);
-void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t Size);
+void phasedmasync_set_phase(phasedmasync_t **phasedmas, uint32_t index, int phase);
+void phasedmasync_set_phase_samples(phasedmasync_t **phasedmas, int *sample, size_t size);
 
 #endif

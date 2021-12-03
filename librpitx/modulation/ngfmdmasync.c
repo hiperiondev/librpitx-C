@@ -34,29 +34,29 @@
 #include "util.h"
 #include "ngfmdmasync.h"
 
-void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t FifoSize, bool UsePwm) {
+void ngfmdmasync_init(ngfmdmasync_t **ngfm, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size, bool use_pwm) {
     *ngfm = (ngfmdmasync_t*) malloc(sizeof(struct ngfmdmasync));
-    bufferdma_init(Channel, FifoSize, 2, 1);
+    bufferdma_init(channel, fifo_size, 2, 1);
     clkgpio_init(&((*ngfm)->clkgpio));
     pwmgpio_init(&((*ngfm)->pwmgpio));
     pcmgpio_init(&((*ngfm)->pcmgpio));
 
-    bufferdma_init(Channel, FifoSize, 2, 1);
+    bufferdma_init(channel, fifo_size, 2, 1);
 
-    (*ngfm)->SampleRate = SR;
-    (*ngfm)->tunefreq = TuneFrequency;
+    (*ngfm)->sample_rate = sr;
+    (*ngfm)->tunefreq = tune_frequency;
     clkgpio_set_advanced_pll_mode(&((*ngfm)->clkgpio), true);
-    clkgpio_set_center_frequency(&((*ngfm)->clkgpio), TuneFrequency, (*ngfm)->SampleRate); // Write Mult Int and Frac : FixMe carrier is already there
+    clkgpio_set_center_frequency(&((*ngfm)->clkgpio), tune_frequency, (*ngfm)->sample_rate); // Write Mult Int and Frac : FixMe carrier is already there
     clkgpio_set_frequency(&((*ngfm)->clkgpio), 0);
     clkgpio_enableclk(&((*ngfm)->clkgpio), 4); // GPIO 4 CLK by default
-    (*ngfm)->syncwithpwm = UsePwm;
+    (*ngfm)->syncwithpwm = use_pwm;
 
     if ((*ngfm)->syncwithpwm) {
         pwmgpio_set_pll_number(&((*ngfm)->pwmgpio), clk_plld, 1);
-        pwmgpio_set_frequency(&((*ngfm)->pwmgpio), (*ngfm)->SampleRate);
+        pwmgpio_set_frequency(&((*ngfm)->pwmgpio), (*ngfm)->sample_rate);
     } else {
         pcmgpio_set_pll_number(&((*ngfm)->pcmgpio), clk_plld, 1);
-        pcmgpio_set_frequency(&((*ngfm)->pcmgpio), (*ngfm)->SampleRate);
+        pcmgpio_set_frequency(&((*ngfm)->pcmgpio), (*ngfm)->sample_rate);
     }
 
     bufferdma_set_dma_algo();
@@ -97,27 +97,27 @@ void ngfmdmasync_set_dma_algo(ngfmdmasync_t **ngfm) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void ngfmdmasync_set_frequency_sample(ngfmdmasync_t **ngfm, uint32_t Index, float Frequency) {
-    Index = Index % buffersize;
-    sampletab[Index] = (0x5A << 24) | clkgpio_get_master_frac(&((*ngfm)->clkgpio), Frequency);
+void ngfmdmasync_set_frequency_sample(ngfmdmasync_t **ngfm, uint32_t index, float frequency) {
+    index = index % buffersize;
+    sampletab[index] = (0x5A << 24) | clkgpio_get_master_frac(&((*ngfm)->clkgpio), frequency);
     //dbg_printf(1,"Frac=%d\n",GetMasterFrac(Frequency));
-    bufferdma_PushSample(Index);
+    bufferdma_push_sample(index);
 }
 
-void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size_t Size) {
+void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size_t size) {
     size_t NbWritten = 0;
     int OSGranularity = 200;
     long int start_time;
     long time_difference = 0;
     struct timespec gettime_now;
 
-    while (NbWritten < Size) {
+    while (NbWritten < size) {
         clock_gettime(CLOCK_REALTIME, &gettime_now);
         start_time = gettime_now.tv_nsec;
-        int Available = bufferdma_GetBufferAvailable();
-        int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (*ngfm)->SampleRate - OSGranularity; // Sleep for theorically fill 3/4 of Fifo
+        int Available = bufferdma_get_buffer_available();
+        int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (*ngfm)->sample_rate - OSGranularity; // Sleep for theorically fill 3/4 of Fifo
         if (TimeToSleep > 0) {
-            librpitx_dbg_printf(1, "buffer size %d Available %d SampleRate %d Sleep %d\n", buffersize, Available, (*ngfm)->SampleRate, TimeToSleep);
+            librpitx_dbg_printf(1, "buffer size %d Available %d SampleRate %d Sleep %d\n", buffersize, Available, (*ngfm)->sample_rate, TimeToSleep);
             usleep(TimeToSleep);
         } else {
             librpitx_dbg_printf(1, "No Sleep %d\n", TimeToSleep);
@@ -127,12 +127,12 @@ void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size
         time_difference = gettime_now.tv_nsec - start_time;
         if (time_difference < 0)
             time_difference += 1E9;
-        int NewAvailable = bufferdma_GetBufferAvailable();
+        int NewAvailable = bufferdma_get_buffer_available();
         librpitx_dbg_printf(1, "New available %d Measure samplerate=%d\n", NewAvailable,
-                (int) ((bufferdma_GetBufferAvailable() - Available) * 1e9 / time_difference));
+                (int) ((bufferdma_get_buffer_available() - Available) * 1e9 / time_difference));
         Available = NewAvailable;
-        int Index = bufferdma_GetUserMemIndex();
-        int ToWrite = ((int) Size - (int) NbWritten) < Available ? Size - NbWritten : Available;
+        int Index = bufferdma_get_user_mem_index();
+        int ToWrite = ((int) size - (int) NbWritten) < Available ? size - NbWritten : Available;
 
         for (int i = 0; i < ToWrite; i++) {
             ngfmdmasync_set_frequency_sample(ngfm, Index + i, sample[NbWritten++]);

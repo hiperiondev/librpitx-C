@@ -28,10 +28,6 @@
 #ifndef MODULATION_OOKBURST_H_
 #define MODULATION_OOKBURST_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -40,11 +36,11 @@ extern "C" {
 
 struct ookburst {
         float timegranularity; //ns
-     uint32_t Originfsel;
+     uint32_t originfsel;
          bool syncwithpwm;
      dma_cb_t *lastcbp;
-       size_t SR_upsample;
-       size_t Ramp;
+       size_t sr_upsample;
+       size_t ramp;
 
     clkgpio_t *clkgpio;
     pwmgpio_t *pwmgpio;
@@ -54,7 +50,7 @@ typedef struct ookburst ookburst_t;
 
 struct ookbursttiming {
     unsigned char *ookrenderbuffer;
-           size_t m_MaxMessage;
+           size_t m_max_message;
 };
 typedef struct ookbursttiming ookbursttiming_t;
 typedef struct SampleOOKTiming {
@@ -62,17 +58,13 @@ typedef struct SampleOOKTiming {
            size_t duration;
 } SampleOOKTiming;
 
-void ookburst_init(ookburst_t **ookbrst, uint64_t TuneFrequency, float SymbolRate, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
+void ookburst_init(ookburst_t **ookbrst, uint64_t tune_frequency, float symbol_rate, int channel, uint32_t fifo_size, size_t upsample, float ratio_ramp);
 void ookburst_deinit(ookburst_t **ookburst);
 void ookburst_set_dma_algo(ookburst_t **ookburst);
-void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *Symbols, uint32_t Size);
+void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *symbols, uint32_t size);
 
-void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t TuneFrequency, size_t MaxMessageDuration);
+void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, uint64_t tune_frequency, size_t max_message_duration);
 void ookbursttiming_deinit(ookbursttiming_t **ookbursttm);
-void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *TabSymbols, size_t Size);
-
-#ifdef __cplusplus
-}
-#endif
+void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *tab_symbols, size_t size);
 
 #endif

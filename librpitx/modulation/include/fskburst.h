@@ -36,11 +36,11 @@
 
 struct fskburst {
         float freqdeviation;
-     uint32_t Originfsel;
+     uint32_t originfsel;
          bool syncwithpwm;
      dma_cb_t *lastcbp;
-       size_t SR_upsample;
-       size_t Ramp;
+       size_t sr_upsample;
+       size_t ramp;
 
     clkgpio_t *clkgpio;
     pwmgpio_t *pwmgpio;
@@ -48,19 +48,9 @@ struct fskburst {
 };
 typedef struct fskburst fskburst_t;
 
-void fskburst_init(fskburst_t **fskbrst, uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample, float RatioRamp);
+void fskburst_init(fskburst_t **fskbrst, uint64_t tune_frequency, float symbol_rate, float deviation, int channel, uint32_t fifo_size, size_t upsample, float ratio_ramp);
 void fskburst_deinit(fskburst_t **fskbrst);
 void fskburst_set_dma_algo(fskburst_t **fskbrst);
-void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *Symbols, uint32_t Size);
-
-
-/*
-public:
-    fskburst(uint64_t TuneFrequency, float SymbolRate, float Deviation, int Channel, uint32_t FifoSize, size_t upsample = 1, float RatioRamp = 0);
-    ~fskburst();
-    void SetDmaAlgo();
-    void SetSymbols(unsigned char *Symbols, uint32_t Size);
-};
-*/
+void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *symbols, uint32_t size);
 
 #endif

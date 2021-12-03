@@ -33,8 +33,8 @@
 struct atv {
      uint64_t tunefreq;
          bool syncwithpwm;
-     uint32_t Originfsel;
-     uint32_t SampleRate;
+     uint32_t originfsel;
+     uint32_t sample_rate;
 
     clkgpio_t *clkgpio;
     pwmgpio_t *pwmgpio;
@@ -42,9 +42,9 @@ struct atv {
 };
 typedef struct atv atv_t;
 
-void atv_init(atv_t **atvl, uint64_t TuneFrequency, uint32_t SR, int Channel, uint32_t Lines);
+void atv_init(atv_t **atvl, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t lines);
 void atv_deinit(atv_t **atvl);
 void atv_set_dma_algo(atv_t **atvl);
-void atv_set_frame(atv_t **atvl,unsigned char *Luminance, size_t Lines);
+void atv_set_frame(atv_t **atvl,unsigned char *luminance, size_t lines);
 
 #endif

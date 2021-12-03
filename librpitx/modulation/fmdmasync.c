@@ -33,8 +33,8 @@
 #include "gpio.h"
 #include "fmdmasync.h"
 
-void fmdmasync_init(int Channel, uint32_t FifoSize) {
-    dma_init(Channel, FifoSize * 2, FifoSize);
+void fmdmasync_init(int channel, uint32_t fifo_size) {
+    dma_init(channel, fifo_size * 2, fifo_size);
     fmdmasync_set_dma_algo();
     fmdmasync_fill_memory(12, 1472);
 }
@@ -75,12 +75,12 @@ void fmdmasync_set_dma_algo(void) {
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
 }
 
-void fmdmasync_fill_memory(uint32_t FreqDivider, uint32_t FreqFractionnal) {
+void fmdmasync_fill_memory(uint32_t freq_divider, uint32_t freq_fractionnal) {
 
     for (uint32_t samplecnt = 0; samplecnt < usermemsize; samplecnt++) {
-        usermem[samplecnt] = 0x5A000000 | ((FreqDivider) << 12) | FreqFractionnal;
-        FreqFractionnal = (FreqFractionnal + 1) % 4096;
-        if (FreqFractionnal == 0)
-            FreqDivider++;
+        usermem[samplecnt] = 0x5A000000 | ((freq_divider) << 12) | freq_fractionnal;
+        freq_fractionnal = (freq_fractionnal + 1) % 4096;
+        if (freq_fractionnal == 0)
+            freq_divider++;
     }
 }
