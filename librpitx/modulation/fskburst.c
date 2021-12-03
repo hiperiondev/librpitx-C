@@ -62,7 +62,7 @@ void fskburst_init(fskburst_t **fskbrst, uint64_t tune_frequency, float symbol_r
 
     //Should be obligatory place before setdmaalgo
     (*fskbrst)->originfsel = (*fskbrst)->clkgpio->gengpio->h_gpio->gpioreg[GPFSEL0];
-    librpitx_dbg_printf(1, "FSK Origin fsel %x\n", (*fskbrst)->originfsel);
+    LIBRPITX_DBG_PRINTF(1, "FSK Origin fsel %x\n", (*fskbrst)->originfsel);
 
     fskburst_set_dma_algo(fskbrst);
 }
@@ -105,11 +105,11 @@ void fskburst_set_dma_algo(fskburst_t **fskbrst) {
 
     cbp->next = 0; // Stop DMA
 
-    librpitx_dbg_printf(2, "Last cbp :  src %x dest %x next %x\n", cbp->src, cbp->dst, cbp->next);
+    LIBRPITX_DBG_PRINTF(2, "Last cbp :  src %x dest %x next %x\n", cbp->src, cbp->dst, cbp->next);
 }
 void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *symbols, uint32_t size) {
     if (size > buffersize - 3) {
-        librpitx_dbg_printf(1, "Buffer overflow\n");
+        LIBRPITX_DBG_PRINTF(1, "Buffer overflow\n");
         return;
     }
 
@@ -129,7 +129,7 @@ void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *symbols, uint32_t
                         | clkgpio_get_master_frac(&((*fskbrst)->clkgpio),
                                 (*fskbrst)->freqdeviation * symbols[i]
                                         + j * ((*fskbrst)->freqdeviation * symbols[i + 1] - (*fskbrst)->freqdeviation * symbols[i]) / (float) (*fskbrst)->ramp);
-                librpitx_dbg_printf(2, "Ramp %f ->%f : %d %f\n", (*fskbrst)->freqdeviation * symbols[i], (*fskbrst)->freqdeviation * symbols[i + 1], j,
+                LIBRPITX_DBG_PRINTF(2, "Ramp %f ->%f : %d %f\n", (*fskbrst)->freqdeviation * symbols[i], (*fskbrst)->freqdeviation * symbols[i + 1], j,
                         (*fskbrst)->freqdeviation * symbols[i]
                                 + j * ((*fskbrst)->freqdeviation * symbols[i + 1] - (*fskbrst)->freqdeviation * symbols[i]) / (float) (*fskbrst)->ramp);
             } else {
@@ -151,6 +151,6 @@ void fskburst_set_symbols(fskburst_t **fskbrst, unsigned char *symbols, uint32_t
         //dbg_printf(1,"GPIO %x\n",clkgpio_gengpio.gpioreg[GPFSEL0]);
         usleep(100);
     }
-    librpitx_dbg_printf(1, "FSK burst end Tx\n", cbp->src, cbp->dst, cbp->next);
+    LIBRPITX_DBG_PRINTF(1, "FSK burst end Tx\n", cbp->src, cbp->dst, cbp->next);
     usleep(100); //To be sure last symbol Tx ?
 }

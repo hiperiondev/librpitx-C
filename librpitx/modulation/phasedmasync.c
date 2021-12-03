@@ -53,11 +53,11 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t tune_frequency, uint
     (*phasedmas)->tunefreq = tune_frequency * number_of_phase;
 #define MAX_PWM_RATE 360000000
     if ((*phasedmas)->tunefreq > MAX_PWM_RATE)
-        librpitx_dbg_printf(1, "Critical error : Frequency to high > %d\n", MAX_PWM_RATE / number_of_phase);
+        LIBRPITX_DBG_PRINTF(1, "Critical error : Frequency to high > %d\n", MAX_PWM_RATE / number_of_phase);
     if ((number_of_phase == 2) || (number_of_phase == 4) || (number_of_phase == 8) || (number_of_phase == 16) || (number_of_phase == 32))
         (*phasedmas)->numb_phase = number_of_phase;
     else
-        librpitx_dbg_printf(1, "PWM critical error: %d is not a legal number of phase\n", number_of_phase);
+        LIBRPITX_DBG_PRINTF(1, "PWM critical error: %d is not a legal number of phase\n", number_of_phase);
     clkgpio_set_advanced_pll_mode(&((*phasedmas)->clkgpio), true);
 
     clkgpio_compute_best_lo(&((*phasedmas)->clkgpio), (*phasedmas)->tunefreq, 0); // compute PWM divider according to MasterPLL clkgpio_PllFixDivider
@@ -67,7 +67,7 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t tune_frequency, uint
     freqctl &= 0xFFFFF; // Fractionnal is 20bits
     uint32_t FracMultiply = freqctl & 0xFFFFF;
     clkgpio_set_master_mult_frac(&((*phasedmas)->clkgpio), IntMultiply, FracMultiply);
-    librpitx_dbg_printf(1, "PWM Mult %d Frac %d Div %d\n", IntMultiply, FracMultiply, (*phasedmas)->clkgpio->pll_fix_divider);
+    LIBRPITX_DBG_PRINTF(1, "PWM Mult %d Frac %d Div %d\n", IntMultiply, FracMultiply, (*phasedmas)->clkgpio->pll_fix_divider);
 
     (*phasedmas)->pwmgpio->clk->h_gpio->gpioreg[PWMCLK_DIV] = 0x5A000000 | (((*phasedmas)->clkgpio->pll_fix_divider) << 12) | (*phasedmas)->pwmgpio->pllnumber; // PWM clock input divider
     usleep(100);
@@ -102,7 +102,7 @@ void phasedmasync_init(phasedmasync_t **phasedmas, uint64_t tune_frequency, uint
             ZeroPhase = 0xFFFF0000;
             break; //1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //32
         default:
-            librpitx_dbg_printf(1, "Zero phase not initialized\n");
+            LIBRPITX_DBG_PRINTF(1, "Zero phase not initialized\n");
             break;
     }
 

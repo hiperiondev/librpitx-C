@@ -117,10 +117,10 @@ void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size
         int Available = bufferdma_get_buffer_available();
         int TimeToSleep = 1e6 * ((int) buffersize * 3 / 4 - Available) / (*ngfm)->sample_rate - OSGranularity; // Sleep for theorically fill 3/4 of Fifo
         if (TimeToSleep > 0) {
-            librpitx_dbg_printf(1, "buffer size %d Available %d SampleRate %d Sleep %d\n", buffersize, Available, (*ngfm)->sample_rate, TimeToSleep);
+            LIBRPITX_DBG_PRINTF(1, "buffer size %d Available %d SampleRate %d Sleep %d\n", buffersize, Available, (*ngfm)->sample_rate, TimeToSleep);
             usleep(TimeToSleep);
         } else {
-            librpitx_dbg_printf(1, "No Sleep %d\n", TimeToSleep);
+            LIBRPITX_DBG_PRINTF(1, "No Sleep %d\n", TimeToSleep);
             sched_yield();
         }
         clock_gettime(CLOCK_REALTIME, &gettime_now);
@@ -128,7 +128,7 @@ void ngfmdmasync_set_frequency_samples(ngfmdmasync_t **ngfm, float *sample, size
         if (time_difference < 0)
             time_difference += 1E9;
         int NewAvailable = bufferdma_get_buffer_available();
-        librpitx_dbg_printf(1, "New available %d Measure samplerate=%d\n", NewAvailable,
+        LIBRPITX_DBG_PRINTF(1, "New available %d Measure samplerate=%d\n", NewAvailable,
                 (int) ((bufferdma_get_buffer_available() - Available) * 1e9 / time_difference));
         Available = NewAvailable;
         int Index = bufferdma_get_user_mem_index();

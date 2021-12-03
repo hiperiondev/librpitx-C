@@ -173,7 +173,7 @@ void atv_set_dma_algo(atv_t **atvl) {
     }
     cbp--;
     cbp->next = dma_mem_virt_to_phys(cbarray); // We loop to the first CB
-    librpitx_dbg_printf(1, "Last cbp :  %d \n", ((uintptr_t) (cbp) - (uintptr_t) (cbarray)) / sizeof(dma_cb_t));
+    LIBRPITX_DBG_PRINTF(1, "Last cbp :  %d \n", ((uintptr_t) (cbp) - (uintptr_t) (cbarray)) / sizeof(dma_cb_t));
 }
 
 void atv_set_frame(atv_t **atvl, unsigned char *luminance, size_t lines) {

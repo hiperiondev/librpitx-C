@@ -41,7 +41,7 @@
 #include "iqdmasync.h"
 
 void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size, int mode) {
-    librpitx_dbg_printf(2, "> func: (iqdmasync_iqdmasync) %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: (iqdmasync_iqdmasync) %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     *iqdmas = (iqdmasync_t*) malloc(sizeof(struct iqdmasync));
     bufferdma_init(channel, fifo_size, 4, 3);
@@ -78,11 +78,11 @@ void iqdmasync_init(iqdmasync_t **iqdmas, uint64_t tune_frequency, uint32_t sr, 
     // Note : Spurious are at +/-(19.2MHZ/2^20)*Div*N : (N=1,2,3...) So we need to have a big div to spurious away BUT
     // Spurious are ALSO at +/-(19.2MHZ/2^20)*(2^20-Div)*N
     // Max spurious avoid is to be in the center ! Theory should be that spurious are set away at 19.2/2= 9.6Mhz ! But need to get account of div of PLLClock
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_deinit(iqdmasync_t **iqdmas) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     (*iqdmas)->clkgpio->h_gpio->gpioreg[GPFSEL0] = (*iqdmas)->originfsel;
     clkgpio_disableclk(&((*iqdmas)->clkgpio), 4);
@@ -92,18 +92,18 @@ void iqdmasync_deinit(iqdmasync_t **iqdmas) {
     pcmgpio_deinit(&((*iqdmas)->pcmgpio));
     free(*iqdmas);
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_phase(iqdmasync_t **iqdmas, bool inversed) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     clkgpio_set_phase(&((*iqdmas)->clkgpio), inversed);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_dma_algo(iqdmasync_t **iqdmas) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dma_cb_t *cbp = cbarray;
     for (uint32_t samplecnt = 0; samplecnt < buffersize; samplecnt++) {
@@ -130,11 +130,11 @@ void iqdmasync_set_dma_algo(iqdmasync_t **iqdmas) {
     cbp--;
     cbp->next = dma_mem_virt_to_phys(cbarray); // We loop to the first CB
     //dbg_printf(1,"Last cbp :  src %x dest %x next %x\n",cbp->src,cbp->dst,cbp->next);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_iq_sample(iqdmasync_t **iqdmas, uint32_t index, float _Complex sample, int harmonic) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     index = index % buffersize;
     dsp_pushsample(&((*iqdmas)->dsp), sample);
@@ -161,11 +161,11 @@ void iqdmasync_set_iq_sample(iqdmasync_t **iqdmas, uint32_t index, float _Comple
 
     //dbg_printf(1,"amp%f %d\n",mydsp.amplitude,IntAmplitudePAD);
     bufferdma_push_sample(index);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_freq_ampl_sample(iqdmasync_t **iqdmas, uint32_t index, float _Complex sample, int harmonic) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     index = index % buffersize;
 
@@ -195,11 +195,11 @@ void iqdmasync_set_freq_ampl_sample(iqdmasync_t **iqdmas, uint32_t index, float 
 
     //dbg_printf(1,"amp%f %d\n",mydsp.amplitude,IntAmplitudePAD);
     bufferdma_push_sample(index);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_iq_samples(iqdmasync_t **iqdmas, float _Complex *sample, size_t Size, int harmonic) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     size_t NbWritten = 0;
     long int start_time;
@@ -220,7 +220,7 @@ void iqdmasync_set_iq_samples(iqdmasync_t **iqdmas, float _Complex *sample, size
             //dbg_printf(1,"buffer size %d Available %d SampleRate %d Sleep %d\n",buffersize,Available,SampleRate,TimeToSleep);
             usleep(TimeToSleep);
         } else {
-            librpitx_dbg_printf(1, "No Sleep %d\n", TimeToSleep);
+            LIBRPITX_DBG_PRINTF(1, "No Sleep %d\n", TimeToSleep);
             //sched_yield();
         }
 
@@ -248,7 +248,7 @@ void iqdmasync_set_iq_samples(iqdmasync_t **iqdmas, float _Complex *sample, size
             }
         }
     }
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void iqdmasync_set_ppm(iqdmasync_t **iqdmas, double ppm) {

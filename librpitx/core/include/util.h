@@ -35,4 +35,17 @@ void librpitx_dbg_setlevel(int level);
  int librpitx_dbg_getlevel();
 void librpitx_dbg_printf(int level, const char *fmt, ...);
 
+#ifdef LIBRPITX_DEBUG
+#if LIBRPITX_DEBUG == 1
+#define LIBRPITX_DBG_PRINTF(l, fmt, args...)  \
+       librpitx_dbg_printf(l, "" fmt, ##args)
+#endif
+#if LIBRPITX_DEBUG == 2
+#define LIBRPITX_DBG_PRINTF(fmt, args...)  \
+		librpitx_dbg_printf(l, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __FUNCTION__, ##args)
+#endif
+#else
+#define LIBRPITX_DBG_PRINTF(l, fmt, args...)
+#endif
+
 #endif

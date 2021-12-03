@@ -34,13 +34,13 @@
 
 void dsp_init(dsp_t **dsp, uint32_t srate) {
 	*dsp = (dsp_t*) malloc(sizeof(dsp));
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 	(*dsp)->prev_phase = 0;
 	(*dsp)->samplerate = srate;
 	(*dsp)->frequency = 0;
 	(*dsp)->amplitude = 0;
 
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void dsp_deinit(dsp_t **dsp) {
@@ -53,14 +53,14 @@ void dsp_deinit(dsp_t **dsp) {
 
 // Normalize to [-180,180):
 inline double dsp_constrainAngle(double x) {
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
 
 	x = fmod(x + M_PI, 2 * M_PI);
 	if (x < 0)
 		x += 2 * M_PI;
 
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
 	return x - M_PI;
 
@@ -68,42 +68,42 @@ inline double dsp_constrainAngle(double x) {
 
 // convert to [-360,360]
 inline double dsp_angleConv(double angle) {
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
 	return fmod(dsp_constrainAngle(angle), 2 * M_PI);
 }
 
 inline double dsp_angleDiff(double a, double b) {
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
 
 	double dif = fmod(b - a + M_PI, 2 * M_PI);
 	if (dif < 0)
 		dif += 2 * M_PI;
 
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
 	return dif - M_PI;
 }
 
 inline double dsp_unwrap(double previous_angle, double new_angle) {
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
 	return previous_angle - dsp_angleDiff(new_angle, dsp_angleConv(previous_angle));
 }
 
 int dsp_arctan2(int y, int x) { // Should be replaced with fast_atan2 from rtl_fm
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__,
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__,
 	__FILE__, __LINE__);
 
 	int abs_y = abs(y);
 	int angle;
 	if ((x == 0) && (y == 0)) {
-		librpitx_dbg_printf(2, "< func: %s -a|\n", __func__);
+		LIBRPITX_DBG_PRINTF(2, "< func: %s -a|\n", __func__);
 		return 0;
 	}
 	if (x >= 0) {
@@ -112,14 +112,14 @@ int dsp_arctan2(int y, int x) { // Should be replaced with fast_atan2 from rtl_f
 		angle = 135 - 45 * (x + abs_y) / ((abs_y - x) == 0 ? 1 : (abs_y - x));
 	}
 
-	librpitx_dbg_printf(2, "< func: %s -b|\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s -b|\n", __func__);
 
 	return (y < 0) ? -angle : angle; // negate if in quad III or IV
 }
 
 //void dsp_pushsample(std::complex<float> sample) {
 void dsp_pushsample(dsp_t **dsp, float _Complex sample) {
-	librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+	LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
 	(*dsp)->amplitude = cabs(sample);
 
@@ -132,6 +132,6 @@ void dsp_pushsample(dsp_t **dsp, float _Complex sample) {
 	(*dsp)->frequency = (dp * (double) (*dsp)->samplerate) / (2.0 * M_PI);
 	(*dsp)->prev_phase = phase;
 
-	librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+	LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 

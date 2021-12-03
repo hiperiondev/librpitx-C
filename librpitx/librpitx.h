@@ -24,6 +24,9 @@
  * Boston, MA 02110-1301, USA.
  *
  */
+
+#define LIBRPITX_DEBUG 1
+
 #include "util.h"
 
 #include "iqdmasync.h"

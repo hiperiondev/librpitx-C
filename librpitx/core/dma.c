@@ -79,28 +79,28 @@ uint32_t registerbysample;
 uint32_t *sampletab;
 
 void dma_init(int channel, uint32_t cb_size, uint32_t user_mem_size) { // Fixme! Need to check to be 256 Aligned for UserMem
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dmagpio_init(&dmagpio);
     if (dmagpio == NULL)
-        librpitx_dbg_printf(2, "1-dmagpio == NULL\n");
+        LIBRPITX_DBG_PRINTF(2, "1-dmagpio == NULL\n");
     //Channel DMA is now hardcoded according to Raspi Model (DMA 7 for Pi4, DMA 14 for others)
     uint32_t BCM2708_PERI_BASE = bcm_host_get_peripheral_address();
 
     dma_channel = channel;
     if (BCM2708_PERI_BASE == 0xFE000000) {
         dma_channel = 7; // Pi4
-        librpitx_dbg_printf(1, "dma PI4 using channel %d\n", dma_channel);
+        LIBRPITX_DBG_PRINTF(1, "dma PI4 using channel %d\n", dma_channel);
     } else {
         dma_channel = 14; // Other Pi
-        librpitx_dbg_printf(1, "dma (NOT a PI4)  using channel %d\n", dma_channel);
+        LIBRPITX_DBG_PRINTF(1, "dma (NOT a PI4)  using channel %d\n", dma_channel);
     }
 
-    librpitx_dbg_printf(1, "channel %d CBSize %u UsermemSize %u\n", dma_channel, cb_size, user_mem_size);
+    LIBRPITX_DBG_PRINTF(1, "channel %d CBSize %u UsermemSize %u\n", dma_channel, cb_size, user_mem_size);
 
     mbox.handle = mbox_open();
     if (mbox.handle < 0) {
-        librpitx_dbg_printf(1, "Failed to open mailbox\n");
+        LIBRPITX_DBG_PRINTF(1, "Failed to open mailbox\n");
 
     }
     cbsize = cb_size;
@@ -110,50 +110,50 @@ void dma_init(int channel, uint32_t cb_size, uint32_t user_mem_size) { // Fixme!
 
     uint32_t MemoryRequired = cb_size * sizeof(dma_cb_t) + user_mem_size * sizeof(uint32_t);
     int NumPages = (MemoryRequired / PAGE_SIZE) + 1;
-    librpitx_dbg_printf(2, "%d Size NUM PAGES %d PAGE_SIZE %d\n", MemoryRequired, NumPages, PAGE_SIZE);
+    LIBRPITX_DBG_PRINTF(2, "%d Size NUM PAGES %d PAGE_SIZE %d\n", MemoryRequired, NumPages, PAGE_SIZE);
     mbox.mem_ref = mem_alloc(mbox.handle, NumPages * PAGE_SIZE, PAGE_SIZE, mem_flag);
     // TODO: How do we know that succeeded?
-    librpitx_dbg_printf(2,"mem_ref %x\n", mbox.mem_ref);
+    LIBRPITX_DBG_PRINTF(2,"mem_ref %x\n", mbox.mem_ref);
     mbox.bus_addr = mem_lock(mbox.handle, mbox.mem_ref);
-    librpitx_dbg_printf(1,"bus_addr = %x\n", mbox.bus_addr);
+    LIBRPITX_DBG_PRINTF(1,"bus_addr = %x\n", mbox.bus_addr);
     mbox.virt_addr = (uint8_t*) mapmem(BUS_TO_PHYS(mbox.bus_addr), NumPages * PAGE_SIZE);
-    librpitx_dbg_printf(2,"virt_addr %p\n", mbox.virt_addr);
+    LIBRPITX_DBG_PRINTF(2,"virt_addr %p\n", mbox.virt_addr);
     virtbase = (uint8_t*) ((uint32_t*) mbox.virt_addr);
-    librpitx_dbg_printf(2,"virtbase %p\n", virtbase);
+    LIBRPITX_DBG_PRINTF(2,"virtbase %p\n", virtbase);
     cbarray = (dma_cb_t*) virtbase; // We place DMA Control Blocks (CB) at beginning of virtual memory
-    librpitx_dbg_printf(2,"cbarray %p\n", cbarray);
+    LIBRPITX_DBG_PRINTF(2,"cbarray %p\n", cbarray);
     usermem = (unsigned int*) (virtbase + cb_size * sizeof(dma_cb_t)); // user memory is placed after
-    librpitx_dbg_printf(2,"usermem %p\n", usermem);
+    LIBRPITX_DBG_PRINTF(2,"usermem %p\n", usermem);
 
     if(dmagpio == NULL)
-        librpitx_dbg_printf(2,"dmagpio == NULL\n");
+        LIBRPITX_DBG_PRINTF(2,"dmagpio == NULL\n");
     if(dmagpio->h_gpio == NULL)
-        librpitx_dbg_printf(2,"dmagpio->h_gpio == NULL\n");
+        LIBRPITX_DBG_PRINTF(2,"dmagpio->h_gpio == NULL\n");
     if(dmagpio->h_gpio->gpioreg == NULL)
-        librpitx_dbg_printf(2,"dmagpio->h_gpio->gpioreg == NULL\n");
+        LIBRPITX_DBG_PRINTF(2,"dmagpio->h_gpio->gpioreg == NULL\n");
 
 
     dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] = BCM2708_DMA_RESET | DMA_CS_INT; // Remove int flag
     usleep(100);
-    librpitx_dbg_printf(1,"DMA_CONBLK_AD\n");
+    LIBRPITX_DBG_PRINTF(1,"DMA_CONBLK_AD\n");
     dmagpio->h_gpio->gpioreg[DMA_CONBLK_AD + dma_channel * 0x40] = dma_mem_virt_to_phys((void*) cbarray); // reset to beginning
 
     //get_clocks(mbox.handle);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void dma_deinit(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dma_stop();
     mem_unlock(mbox.handle, mbox.mem_ref);
     mem_free(mbox.handle, mbox.mem_ref);
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void dma_get_rpi_info(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dram_phys_base = bcm_host_get_sdram_address();
 
@@ -166,38 +166,38 @@ void dma_get_rpi_info(void) {
         mem_flag |= MEM_FLAG_DIRECT;
         break;
     default:
-        librpitx_dbg_printf(0, "Unknown Raspberry architecture\n");
+        LIBRPITX_DBG_PRINTF(0, "Unknown Raspberry architecture\n");
     }
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 uint32_t dma_mem_virt_to_phys(volatile void *virt) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     //MBOX METHOD
     uint32_t offset = (uint8_t*) virt - mbox.virt_addr;
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return mbox.bus_addr + offset;
 }
 
 uint32_t dma_mem_phys_to_virt(volatile uint32_t phys) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     //MBOX METHOD
     uint32_t offset = phys - mbox.bus_addr;
     uint32_t result = (size_t) ((uint8_t*) mbox.virt_addr + offset);
-    //librpitx_dbg_printf(2, "MemtoVirt:Offset=%lx phys=%lx -> %lx\n",offset,phys,result);
+    //LIBRPITX_DBG_PRINTF(2, "MemtoVirt:Offset=%lx phys=%lx -> %lx\n",offset,phys,result);
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return result;
 }
 
 int dma_start(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] = BCM2708_DMA_RESET;
     usleep(100);
@@ -207,13 +207,13 @@ int dma_start(void) {
     dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] = DMA_CS_PRIORITY(7) | DMA_CS_PANIC_PRIORITY(7) | DMA_CS_DISDEBUG | DMA_CS_ACTIVE;
     started = true;
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
 int dma_stop(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] = BCM2708_DMA_RESET;
     usleep(1000);
@@ -226,43 +226,43 @@ int dma_stop(void) {
     usleep(100);
     started = false;
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return 0;
 }
 
 int dma_getcbposition(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     volatile uint32_t dmacb = (uint32_t) (dmagpio->h_gpio->gpioreg[DMA_CONBLK_AD + dma_channel * 0x40]);
     //dbg_printf(1,"cb=%x\n",dmacb);
     if (dmacb > 0) {
-        librpitx_dbg_printf(2, "< func: %s -a|\n", __func__);
+        LIBRPITX_DBG_PRINTF(2, "< func: %s -a|\n", __func__);
         return dma_mem_phys_to_virt(dmacb) - (size_t) virtbase;
     } else {
-        librpitx_dbg_printf(2, "< func: %s -b|\n", __func__);
+        LIBRPITX_DBG_PRINTF(2, "< func: %s -b|\n", __func__);
         return -1;
     }
     // dma_reg.gpioreg[DMA_CONBLK_AD+channel*0x40]-mem_virt_to_phys((void *)cbarray );
 }
 
 bool dma_isrunning(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
-    librpitx_dbg_printf(2, "< func: %s -b|\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s -b|\n", __func__);
     return ((dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] & DMA_CS_ACTIVE) > 0);
 }
 
 bool dma_isunderflow(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     //if((dma_reg.gpioreg[DMA_CS+channel*0x40]&DMA_CS_INT)>0)  dbg_printf(1,"Status:%x\n",dma_reg.gpioreg[DMA_CS+channel*0x40]);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return ((dmagpio->h_gpio->gpioreg[DMA_CS + dma_channel * 0x40] & DMA_CS_INT) > 0);
 }
 
 bool dma_set_cb(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, uint32_t repeat) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     cbp->info = dma_flag;
     cbp->src = src;
@@ -271,14 +271,14 @@ bool dma_set_cb(dma_cb_t *cbp, uint32_t dma_flag, uint32_t src, uint32_t dst, ui
     cbp->stride = 0;
     cbp->next = dma_mem_virt_to_phys(cbp + 1);
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return true;
 }
 
 
 bool dma_set_easy_cb(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32_t repeat) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     uint32_t flag = BCM2708_DMA_NO_WIDE_BURSTS | BCM2708_DMA_WAIT_RESP;
     uint32_t src = dma_mem_virt_to_phys(&usermem[index]);
@@ -298,7 +298,7 @@ bool dma_set_easy_cb(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32
     }
     dma_set_cb(cbp, flag, src, dst, repeat);
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return true;
 }
@@ -307,12 +307,12 @@ bool dma_set_easy_cb(dma_cb_t *cbp, uint32_t index, dma_common_reg_t dst, uint32
 void bufferdma_init(int channel, uint32_t tbuffersize, uint32_t tcbbysample, uint32_t tregisterbysample) {
     dma_init(channel, tbuffersize * tcbbysample, tbuffersize * tregisterbysample);
 
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     buffersize = tbuffersize;
     cbbysample = tcbbysample;
     registerbysample = tregisterbysample;
-    librpitx_dbg_printf(1, "BufferSize %d, cb %d user %d\n", buffersize, buffersize * cbbysample, buffersize * registerbysample);
+    LIBRPITX_DBG_PRINTF(1, "BufferSize %d, cb %d user %d\n", buffersize, buffersize * cbbysample, buffersize * registerbysample);
 
     current_sample = 0;
     last_sample = 0;
@@ -320,7 +320,7 @@ void bufferdma_init(int channel, uint32_t tbuffersize, uint32_t tcbbysample, uin
 
     sampletab = usermem;
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 void bufferdma_deinit(void) {
@@ -328,12 +328,12 @@ void bufferdma_deinit(void) {
 }
 
 void bufferdma_set_dma_algo(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
 
 int bufferdma_get_buffer_available(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     int diffsample = 0;
     if (started) {
@@ -341,53 +341,53 @@ int bufferdma_get_buffer_available(void) {
         if (CurrenCbPos != -1) {
             current_sample = CurrenCbPos / (sizeof(dma_cb_t) * cbbysample);
         } else {
-            librpitx_dbg_printf(1, "DMA WEIRD STATE\n");
+            LIBRPITX_DBG_PRINTF(1, "DMA WEIRD STATE\n");
             current_sample = 0;
         }
-        //librpitx_dbg_printf(1,"CurrentCB=%d\n",current_sample);
+        //LIBRPITX_DBG_PRINTF(1,"CurrentCB=%d\n",current_sample);
         diffsample = current_sample - last_sample;
         if (diffsample < 0)
             diffsample += buffersize;
 
-        //librpitx_dbg_printf(1,"cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
+        //LIBRPITX_DBG_PRINTF(1,"cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
     } else {
         //last_sample=buffersize-1;
         diffsample = buffersize;
         current_sample = 0;
-        //librpitx_dbg_printf(1,"Warning DMA stopped \n");
-        //librpitx_dbg_printf(1,"S:cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
+        //LIBRPITX_DBG_PRINTF(1,"Warning DMA stopped \n");
+        //LIBRPITX_DBG_PRINTF(1,"S:cur %d last %d diff%d\n",current_sample,last_sample,diffsample);
     }
 
     //
     if (dma_isunderflow()) {
-        librpitx_dbg_printf(1, "cur %d last %d \n", current_sample, last_sample);
-        librpitx_dbg_printf(1, "Underflow\n");
+        LIBRPITX_DBG_PRINTF(1, "cur %d last %d \n", current_sample, last_sample);
+        LIBRPITX_DBG_PRINTF(1, "Underflow\n");
     }
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return diffsample;
 
 }
 
 int bufferdma_get_user_mem_index(void) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     int IndexAvailable = -1;
-    //librpitx_dbg_printf(1,"Avail=%d\n",GetBufferAvailable());
+    //LIBRPITX_DBG_PRINTF(1,"Avail=%d\n",GetBufferAvailable());
     if (bufferdma_get_buffer_available() > 0) {
         IndexAvailable = last_sample + 1;
         if (IndexAvailable >= (int) buffersize)
             IndexAvailable = 0;
     }
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return IndexAvailable;
 }
 
 int bufferdma_push_sample(int index) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     if (index < 0)
         return -1; // No buffer available
@@ -407,7 +407,7 @@ int bufferdma_push_sample(int index) {
             dma_start(); // 1/4 Fill buffer before starting DMA
     }
 
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 
     return 0;
 }

@@ -96,7 +96,7 @@ void ookburst_set_dma_algo(ookburst_t **ookburst) {
 }
 void ookburst_set_symbols(ookburst_t **ookbrst, unsigned char *symbols, uint32_t size) {
     if (size > buffersize - 2) {
-        librpitx_dbg_printf(1, "Buffer overflow\n");
+        LIBRPITX_DBG_PRINTF(1, "Buffer overflow\n");
         return;
     }
 
@@ -160,7 +160,7 @@ void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ook
         for (size_t j = 0; j < tab_symbols[i].duration / 10; j++) {
             (*ookbursttm)->ookrenderbuffer[n++] = tab_symbols[i].value;
             if (n >= (*ookbursttm)->m_max_message) {
-                librpitx_dbg_printf(1, "OOK Message too long abort time(%d/%d)\n", n, (*ookbursttm)->m_max_message);
+                LIBRPITX_DBG_PRINTF(1, "OOK Message too long abort time(%d/%d)\n", n, (*ookbursttm)->m_max_message);
                 return;
             }
         }

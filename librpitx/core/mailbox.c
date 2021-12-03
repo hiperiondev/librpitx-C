@@ -40,7 +40,7 @@
 #include <util.h>
 
 void* mapmem(unsigned base, unsigned size) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int mem_fd;
     unsigned offset = base % PAGE_SIZE;
     base = base - offset;
@@ -65,28 +65,28 @@ void* mapmem(unsigned base, unsigned size) {
         exit(-1);
     }
     close(mem_fd);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return (char*) mem + offset;
 }
 
 void* unmapmem(void *addr, unsigned size) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int s = munmap(addr, size);
     if (s != 0) {
-        librpitx_dbg_printf(1, "munmap error %d\n", s);
+        LIBRPITX_DBG_PRINTF(1, "munmap error %d\n", s);
         exit(-1);
     }
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return NULL;
 }
 
 // use ioctl to send mbox property message
 static int mbox_property(int file_desc, void *buf) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int ret_val = ioctl(file_desc, IOCTL_MBOX_PROPERTY, buf);
 
     if (ret_val < 0) {
-        librpitx_dbg_printf(1, "ioctl_set_msg failed:%d\n", ret_val);
+        LIBRPITX_DBG_PRINTF(1, "ioctl_set_msg failed:%d\n", ret_val);
     }
 
 #ifdef DEBUG
@@ -94,12 +94,12 @@ static int mbox_property(int file_desc, void *buf) {
    for (i=0; i<size/4; i++)
       fprintf(stderrn,"%04x: 0x%08x\n", i*sizeof *p, p[i]);
 #endif
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return ret_val;
 }
 
 unsigned mem_alloc(int file_desc, unsigned size, unsigned align, unsigned flags) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
     //printf("Requesting %d bytes\n", size);
@@ -117,12 +117,12 @@ unsigned mem_alloc(int file_desc, unsigned size, unsigned align, unsigned flags)
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned mem_free(int file_desc, unsigned handle) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
     p[i++] = 0; // size
@@ -137,12 +137,12 @@ unsigned mem_free(int file_desc, unsigned handle) {
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned mem_lock(int file_desc, unsigned handle) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
     p[i++] = 0;           // size
@@ -157,12 +157,12 @@ unsigned mem_lock(int file_desc, unsigned handle) {
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned mem_unlock(int file_desc, unsigned handle) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
     p[i++] = 0;           // size
@@ -177,12 +177,12 @@ unsigned mem_unlock(int file_desc, unsigned handle) {
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned execute_code(int file_desc, unsigned code, unsigned r0, unsigned r1, unsigned r2, unsigned r3, unsigned r4, unsigned r5) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
     p[i++] = 0;           // size
@@ -203,12 +203,12 @@ unsigned execute_code(int file_desc, unsigned code, unsigned r0, unsigned r1, un
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned qpu_enable(int file_desc, unsigned enable) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
 
@@ -224,12 +224,12 @@ unsigned qpu_enable(int file_desc, unsigned enable) {
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned execute_qpu(int file_desc, unsigned num_qpus, unsigned control, unsigned noflush, unsigned timeout) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[32];
 
@@ -247,13 +247,13 @@ unsigned execute_qpu(int file_desc, unsigned num_qpus, unsigned control, unsigne
     p[0] = i * sizeof *p; // actual size
 
     mbox_property(file_desc, p);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 unsigned get_clocks(int file_desc) // FixMe !!!!!!
         {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int i = 0;
     unsigned p[256];
 
@@ -270,21 +270,21 @@ unsigned get_clocks(int file_desc) // FixMe !!!!!!
     mbox_property(file_desc, p);
     fprintf(stderr, "Clock size = %d\n", (int) (p[4] & 0xFFF));
     for (i = 0; i < 128 / 4; i++)
-        librpitx_dbg_printf(1, "%x ", p[i]);
-    librpitx_dbg_printf(1, "\n");
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+        LIBRPITX_DBG_PRINTF(1, "%x ", p[i]);
+    LIBRPITX_DBG_PRINTF(1, "\n");
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return p[5];
 }
 
 int mbox_open() {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     int file_desc;
 
     // Open a char device file used for communicating with kernel mbox driver.
     file_desc = open(VCIO_DEVICE_FILE_NAME, 0);
     if (file_desc >= 0) {
         fprintf(stderr, "Using mbox device %s\n", VCIO_DEVICE_FILE_NAME);
-        librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+        LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
         return file_desc;
     }
 
@@ -292,22 +292,22 @@ int mbox_open() {
     unlink(LOCAL_DEVICE_FILE_NAME);
     if (mknod(LOCAL_DEVICE_FILE_NAME, S_IFCHR | 0600, makedev(MAJOR_NUM_A, 0)) >= 0 && (file_desc = open(LOCAL_DEVICE_FILE_NAME, 0)) >= 0) {
         fprintf(stderr, "Using local mbox device file with major %d\n", MAJOR_NUM_A);
-        librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+        LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
         return file_desc;
     }
 
     unlink(LOCAL_DEVICE_FILE_NAME);
     if (mknod(LOCAL_DEVICE_FILE_NAME, S_IFCHR | 0600, makedev(MAJOR_NUM_B, 0)) >= 0 && (file_desc = open(LOCAL_DEVICE_FILE_NAME, 0)) >= 0) {
         fprintf(stderr, "Using local mbox device file with major %d\n", MAJOR_NUM_B);
-        librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+        LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
         return file_desc;
     }
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
     return file_desc;
 }
 
 void mbox_close(int file_desc) {
-    librpitx_dbg_printf(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
+    LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
     close(file_desc);
-    librpitx_dbg_printf(2, "< func: %s |\n", __func__);
+    LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
