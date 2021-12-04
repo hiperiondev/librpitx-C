@@ -55,9 +55,9 @@ typedef struct {
 
 page_map_t *page_map;
 
-uint8_t *virtbase;
-    int NumPages = 0;
-    int dma_channel;          // DMA Channel
+ uint8_t *virtbase;
+     int NumPages = 0;
+     int dma_channel;     // DMA Channel
 
 uint32_t mem_flag;        // Cache or not depending on Rpi1 or 2/3
 uint32_t dram_phys_base;
@@ -73,10 +73,10 @@ dmagpio_t *dmagpio;
  uint32_t usermemsize;
      bool started = false;
 
-uint32_t buffersize;
-uint32_t cbbysample;
-uint32_t registerbysample;
-uint32_t *sampletab;
+ uint32_t buffersize;
+ uint32_t cbbysample;
+ uint32_t registerbysample;
+ uint32_t *sampletab;
 
 void dma_init(int channel, uint32_t cb_size, uint32_t user_mem_size) { // Fixme! Need to check to be 256 Aligned for UserMem
     LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
@@ -93,7 +93,7 @@ void dma_init(int channel, uint32_t cb_size, uint32_t user_mem_size) { // Fixme!
         LIBRPITX_DBG_PRINTF(1, "dma PI4 using channel %d\n", dma_channel);
     } else {
         dma_channel = 14; // Other Pi
-        LIBRPITX_DBG_PRINTF(1, "dma (NOT a PI4)  using channel %d\n", dma_channel);
+        LIBRPITX_DBG_PRINTF(1, "dma (NOT a PI4) using channel %d\n", dma_channel);
     }
 
     LIBRPITX_DBG_PRINTF(1, "channel %d CBSize %u UsermemSize %u\n", dma_channel, cb_size, user_mem_size);
