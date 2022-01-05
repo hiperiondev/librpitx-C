@@ -35,6 +35,12 @@ void librpitx_dbg_setlevel(int level);
  int librpitx_dbg_getlevel();
 void librpitx_dbg_printf(int level, const char *fmt, ...);
 
+#define FREE(x)    librpitx_dbg_printf(2, "->free(" #x ")\n"); \
+                   if((x) != NULL) { \
+                       free((x)); \
+                       x = NULL; \
+                   }
+
 #ifdef LIBRPITX_DEBUG
 #if LIBRPITX_DEBUG == 1
 #define LIBRPITX_DBG_PRINTF(l, fmt, args...)  \

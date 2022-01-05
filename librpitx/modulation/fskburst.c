@@ -71,7 +71,8 @@ void fskburst_deinit(fskburst_t **fskbrst) {
     clkgpio_deinit(&((*fskbrst)->clkgpio));
     pwmgpio_deinit(&((*fskbrst)->pwmgpio));
     pcmgpio_deinit(&((*fskbrst)->pcmgpio));
-    free(*fskbrst);
+
+    FREE(*fskbrst);
 }
 
 void fskburst_set_dma_algo(fskburst_t **fskbrst) {

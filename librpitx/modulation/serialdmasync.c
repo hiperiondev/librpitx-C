@@ -32,6 +32,7 @@
 #include "gpio_enum.h"
 #include "dma.h"
 #include "serialdmasync.h"
+#include "util.h"
 
 void serialdmasync_init(serialdmasync_t **serialdmas, uint32_t sample_rate, int channel, uint32_t fifo_size, bool dualoutput) {
     *serialdmas = (serialdmasync_t*) malloc(sizeof(struct serialdmasync));
@@ -66,7 +67,8 @@ void serialdmasync_deinit(serialdmasync_t **serialdmas) {
     clkgpio_deinit(&((*serialdmas)->clkgpio));
     pwmgpio_deinit(&((*serialdmas)->pwmgpio));
     bufferdma_deinit();
-    free(*serialdmas);
+
+    FREE(*serialdmas);
 }
 
 void serialdmasync_set_dma_algo(serialdmasync_t **serialdmas) {

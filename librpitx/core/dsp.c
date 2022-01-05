@@ -44,7 +44,7 @@ void dsp_init(dsp_t **dsp, uint32_t srate) {
 }
 
 void dsp_deinit(dsp_t **dsp) {
-    free(*dsp);
+    FREE(*dsp);
 }
 
 #define ln(x) (log(x)/log(2.718281828459045235f))

@@ -34,6 +34,7 @@
 
 #include "gpio.h"
 #include "amdmasync.h"
+#include "util.h"
 
 void amdmasync_init(amdmasync_t **amdma, uint64_t tune_frequency, uint32_t sr, int channel, uint32_t fifo_size) {
     *amdma = (amdmasync_t*) malloc(sizeof(struct amdmasync));
@@ -74,7 +75,8 @@ void amdmasync_deinit(amdmasync_t **amdma) {
     pwmgpio_deinit(&((*amdma)->pwmgpio));
     pcmgpio_deinit(&((*amdma)->pcmgpio));
     padgpio_deinit(&pad);
-    free(*amdma);
+
+    FREE(*amdma);
 }
 
 void amdmasync_set_dma_algo(amdmasync_t **amdma) {

@@ -120,7 +120,8 @@ void phasedmasync_deinit(phasedmasync_t **phasedmas) {
     pwmgpio_deinit(&((*phasedmas)->pwmgpio));
     pcmgpio_deinit(&((*phasedmas)->pcmgpio));
     bufferdma_deinit();
-    free(*phasedmas);
+
+    FREE(*phasedmas);
 }
 
 void phasedmasync_set_dma_algo(phasedmasync_t **phasedmas) {

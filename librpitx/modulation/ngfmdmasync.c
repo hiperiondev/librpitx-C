@@ -72,7 +72,8 @@ void ngfmdmasync_deinit(ngfmdmasync_t **ngfm) {
     clkgpio_deinit(&((*ngfm)->clkgpio));
     pwmgpio_deinit(&((*ngfm)->pwmgpio));
     pcmgpio_deinit(&((*ngfm)->pcmgpio));
-    free(*ngfm);
+
+    FREE(*ngfm);
 }
 
 void ngfmdmasync_set_phase(ngfmdmasync_t **ngfm, bool inversed) {

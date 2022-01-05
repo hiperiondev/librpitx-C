@@ -91,7 +91,9 @@ void iqdmasync_deinit(iqdmasync_t **iqdmas) {
     pwmgpio_deinit(&((*iqdmas)->pwmgpio));
     pcmgpio_deinit(&((*iqdmas)->pcmgpio));
     bufferdma_deinit();
-    free(*iqdmas);
+    dsp_deinit(&((*iqdmas)->dsp));
+
+    FREE(*iqdmas);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }

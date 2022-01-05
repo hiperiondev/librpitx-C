@@ -86,7 +86,8 @@ void atv_deinit(atv_t **atvl) {
     pwmgpio_deinit(&((*atvl)->pwmgpio));
     pcmgpio_deinit(&((*atvl)->pcmgpio));
     padgpio_deinit(&pad);
-    free(*atvl);
+
+    FREE(*atvl);
 }
 
 void atv_set_dma_algo(atv_t **atvl) {

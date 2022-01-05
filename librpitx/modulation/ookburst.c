@@ -66,7 +66,8 @@ void ookburst_deinit(ookburst_t **ookburst) {
     clkgpio_deinit(&((*ookburst)->clkgpio));
     pwmgpio_deinit(&((*ookburst)->pwmgpio));
     pcmgpio_deinit(&((*ookburst)->pcmgpio));
-    free(*ookburst);
+
+    FREE(*ookburst);
 }
 
 void ookburst_set_dma_algo(ookburst_t **ookburst) {
@@ -149,9 +150,8 @@ void ookbursttiming_init(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, ui
 }
 
 void ookbursttiming_deinit(ookbursttiming_t **ookbursttm) {
-    if ((*ookbursttm)->ookrenderbuffer != NULL)
-        free((*ookbursttm)->ookrenderbuffer);
-    free(*ookbursttm);
+    FREE((*ookbursttm)->ookrenderbuffer);
+    FREE(*ookbursttm);
 }
 
 void ookbursttiming_send_message(ookbursttiming_t **ookbursttm, ookburst_t **ookbrst, SampleOOKTiming *tab_symbols, size_t size) {

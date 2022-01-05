@@ -60,7 +60,7 @@ void gpio_deinit(gpio_t **gpio) {
     if ((*gpio)->gpioreg != NULL)
         unmapmem((void*) (*gpio)->gpioreg, (*gpio)->gpiolen);
 
-    free((*gpio));
+    FREE(*gpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -139,7 +139,7 @@ void dmagpio_deinit(dmagpio_t **dmagio) {
     LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     gpio_deinit(&(*dmagio)->h_gpio);
-    free((*dmagio));
+    FREE(*dmagio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -168,7 +168,7 @@ void clkgpio_deinit(clkgpio_t **clkgpio) {
     usleep(100);
     generalgpio_deinit(&(*clkgpio)->gengpio);
     gpio_deinit(&(*clkgpio)->h_gpio);
-    free((*clkgpio));
+    FREE(*clkgpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -804,7 +804,7 @@ void generalgpio_deinit(generalgpio_t **generalgpio) {
     LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     gpio_deinit(&(*generalgpio)->h_gpio);
-    free((*generalgpio));
+    FREE(*generalgpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -875,7 +875,8 @@ void pwmgpio_deinit(pwmgpio_t **pwmgpio) {
     generalgpio_deinit(&(*pwmgpio)->gengpio);
     clkgpio_deinit(&(*pwmgpio)->clk);
     gpio_deinit(&(*pwmgpio)->h_gpio);
-    free((*pwmgpio));
+
+    FREE(*pwmgpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -1051,7 +1052,7 @@ void pcmgpio_deinit(pcmgpio_t **pcmgpio) {
 
     gpio_deinit(&(*pcmgpio)->h_gpio);
     clkgpio_deinit(&(*pcmgpio)->clk);
-    free((*pcmgpio));
+    FREE(*pcmgpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
@@ -1158,7 +1159,7 @@ void padgpio_deinit(padgpio_t **padgpio) {
     LIBRPITX_DBG_PRINTF(2, "> func: %s (file %s | line %d)\n", __func__, __FILE__, __LINE__);
 
     gpio_deinit(&(*padgpio)->h_gpio);
-    free((*padgpio));
+    FREE(*padgpio);
 
     LIBRPITX_DBG_PRINTF(2, "< func: %s |\n", __func__);
 }
