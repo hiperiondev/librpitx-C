@@ -29,6 +29,7 @@
 #define IQDMASYNC_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include "gpio.h"
 #include "dma.h"
 #include "dsp.h"
