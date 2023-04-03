@@ -213,10 +213,10 @@ uint64_t clkgpio_get_pll_frequency(clkgpio_t **clkgpio, int pll_no) {
             break;
             //case clk_pllb:Freq=XOSC_FREQUENCY*((uint64_t)gpioreg[PLLB_CTRL]&0x3ff) +XOSC_FREQUENCY*(uint64_t)gpioreg[PLLB_FRAC]/(1<<20);break;
         case clk_pllc:
-            //Freq = (XOSC_FREQUENCY * ((uint64_t)gpioreg[PLLC_CTRL] & 0x3ff) + (XOSC_FREQUENCY * (uint64_t)gpioreg[PLLC_FRAC]) / (1 << 20)) / (2*gpioreg[PLLC_PER] >> 1)) /((gpioreg[PLLC_CTRL] >> 12)&0x7) ;
-            Freq = (((*clkgpio)->h_gpio->xosc_frequency * ((uint64_t) (*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] & 0x3ff)
-                    + ((*clkgpio)->h_gpio->xosc_frequency * (uint64_t) (*clkgpio)->h_gpio->gpioreg[PLLC_FRAC]) / (1 << 20))
-                    / (2 * (*clkgpio)->h_gpio->gpioreg[PLLC_PER] >> 1)) / (((*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] >> 12) & 0x7);
+            if (((*clkgpio)->h_gpio->gpioreg[PLLC_PER] != 0) && ((*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] >> 12 != 0))
+                Freq = (((*clkgpio)->h_gpio->xosc_frequency * ((uint64_t) (*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] & 0x3ff)
+                        + ((*clkgpio)->h_gpio->xosc_frequency * (uint64_t) (*clkgpio)->h_gpio->gpioreg[PLLC_FRAC]) / (1 << 20))
+                        / (2 * (*clkgpio)->h_gpio->gpioreg[PLLC_PER] >> 1)) / (((*clkgpio)->h_gpio->gpioreg[PLLC_CTRL] >> 12) & 0x7);
             break;
         case clk_plld:
             Freq = (((*clkgpio)->h_gpio->xosc_frequency * ((uint64_t) (*clkgpio)->h_gpio->gpioreg[PLLD_CTRL] & 0x3ff)
